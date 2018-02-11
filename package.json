@@ -1,0 +1,27 @@
+{
+  "name": "project2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Anbroyar/project2.git"
+  },
+  "author": "anbroyar",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Anbroyar/project2/issues"
+  },
+  "homepage": "https://github.com/Anbroyar/project2#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "mysql": "^2.15.0",
+    "mysql2": "^1.5.2",
+    "pug": "^2.0.0-rc.4",
+    "sequelize": "^4.33.3"
+  }
+}
