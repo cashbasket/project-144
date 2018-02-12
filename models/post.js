@@ -1,6 +1,7 @@
 module.exports = function(sequelize, DataTypes) {
 	var Post = sequelize.define('Post', {
-		body: { type: DataTypes.TEXT, allowNull: false, validate: { len: [1] } }
+		body: { type: DataTypes.TEXT, allowNull: false, validate: { len: [1] } },
+		isPublic: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: true }
 	}, {
 		freezeTableName: true
 	});
