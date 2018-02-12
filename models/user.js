@@ -5,7 +5,8 @@ module.exports = function(sequelize, DataTypes) {
 		email: { type: DataTypes.STRING, allowNull: false, unique: true, validate: { len: [1,255] } },
 		name: { type: DataTypes.STRING, allowNull: true, validate: { len: [0,255] } },
 		location: { type: DataTypes.STRING, allowNull: true, validate: { len: [0,255] } },
-		bio: { type: DataTypes.STRING, allowNull: true, validate: { len: [0,255] } }
+		bio: { type: DataTypes.STRING, allowNull: true, validate: { len: [0,255] } },
+		isAdmin: { type: DataTypes.BOOLEAN, allowNaull: false, defaultValue: false }
 	}, {
 		freezeTableName: true
 	});
