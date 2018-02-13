@@ -13,6 +13,13 @@ module.exports = function(sequelize, DataTypes) {
 
 	User.associate = function(models) {
 		models.User.hasMany(models.Post);
+		models.User.belongsToMany(models.Album, { through: models.UserAlbum });
+	};
+
+	User.prototype.toJSON =  function () {
+		var values = Object.assign({}, this.get());
+		delete values.password;
+		return values;
 	};
 
 	return User;
