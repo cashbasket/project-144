@@ -1,4 +1,5 @@
 var express = require('express');
+require('dotenv').config();
 
 var bodyParser = require('body-parser');
 var db = require('./models');
