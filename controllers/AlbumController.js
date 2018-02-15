@@ -1,10 +1,16 @@
 var express = require('express');
 var router = express.Router();
 var models = require('../models');
+var VerifyToken = require('./VerifyToken');
 
 // searches for all albums that match the search parameters
-router.post('/search', function(req, res) {
+router.post('/search', VerifyToken, function(req, res) {
 	var isLoggedIn = false;
+
+	if (req.userId) {
+		isLoggedIn = true;
+	}
+
 	// TODO: authenticate user based on JSON web token.
 	// if user is logged in, let them add albums
 	var whereObj;

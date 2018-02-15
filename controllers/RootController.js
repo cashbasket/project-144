@@ -2,16 +2,16 @@ var express = require('express');
 var router = express.Router();
 var models = require('../models');
 var Sequelize = require('sequelize');
+var VerifyToken = require('./VerifyToken');
 
 // default route (if user is logged in, redirects them to their profile page)
-router.get('/', function(req, res) {
+router.get('/', VerifyToken, function(req, res) {
 	// TODO: authenticate user based on JSON web token.
 	// if user is authenticated, redirect them to their profile page
-	var userId = 3;
-	if (userId == 3) {
+	if(req.userId){
 		models.User.findOne({
 			where: {
-				id: userId
+				id: req.userId
 			}
 		}).then(function(user) {
 			res.redirect('/user/' + user.username);
