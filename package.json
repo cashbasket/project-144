@@ -22,10 +22,12 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "bootstrap": "^3.3.7",
+    "dotenv": "^5.0.0",
     "express": "^4.16.2",
     "express-handlebars": "^3.0.0",
     "jsonwebtoken": "^8.1.1",
     "mysql2": "^1.5.2",
-    "sequelize": "^4.33.3"
+    "sequelize": "^4.33.3",
+    "uuid": "^3.2.1"
   }
 }
