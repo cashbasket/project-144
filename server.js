@@ -6,7 +6,6 @@ var db = require('./models');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
-global.__root   = __dirname + '/'; 
 
 // Sets up the Express app to handle data parsing
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -15,16 +14,16 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 // Import controllers
-var RootController = require(__root + 'controllers/RootController');
+var RootController = require('./controllers/RootController');
 app.use(RootController);
 
-var UserController = require(__root + 'controllers/UserController');
+var UserController = require('./controllers/UserController');
 app.use('/api/user', UserController);
 
-var AlbumController = require(__root + 'controllers/AlbumController');
+var AlbumController = require('./controllers/AlbumController');
 app.use('/api/album', AlbumController);
 
-var PostController = require(__root + 'controllers/PostController');
+var PostController = require('./controllers/PostController');
 app.use('/api/post', PostController);
 
 // Sync with DB and then listen
