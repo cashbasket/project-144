@@ -2,24 +2,30 @@ var express = require('express');
 var router = express.Router();
 var models = require('../models');
 var Sequelize = require('sequelize');
-var VerifyToken = require('./VerifyToken');
+var auth = require('../lib/helpers');
 
 // default route (if user is logged in, redirects them to their profile page)
-router.get('/', VerifyToken, function(req, res) {
-	// TODO: authenticate user based on JSON web token.
-	// if user is authenticated, redirect them to their profile page
-	if(req.userId){
+router.get('/', auth.validate, function(req, res) {
+	if (req.userId) {
 		models.User.findOne({
 			where: {
 				id: req.userId
 			}
-		}).then(function(user) {
+		}).then(function (user) {
 			res.redirect('/user/' + user.username);
 		});
 	}
-	// Otherwise, send them to the index page, which will let them sign in or register.
-	// else
-	// res.render('index');
+	//Otherwise, send them to the index page, which will let them sign in or register.
+	else
+		res.render('index');
+});
+
+router.get('/login', function(req, res) {
+	res.render('login');
+});
+
+router.post('/logout', function(req, res) {
+	auth.logout(req, res, auth.done);
 });
 
 // gets all data for current user, including user info, albums owned and posts made
@@ -60,7 +66,7 @@ router.get('/user/:username', function(req, res) {
 });
 
 // gets all data for the specified album
-router.get('/album/:id', function(req, res) {
+router.get('/album/:id', auth.validate, function(req, res) {
 	models.Album.findOne({
 		where: {
 			id: req.params.id

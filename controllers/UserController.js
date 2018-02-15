@@ -2,9 +2,8 @@ var express = require('express');
 var router = express.Router();
 var models = require('../models');
 var Sequelize = require('sequelize');
-var VerifyToken = require('./VerifyToken');
+var auth = require('../lib/helpers');
 var jwt = require('jsonwebtoken');
-var config = require('../config');
 var bcrypt = require('bcryptjs');
 
 // creates a new user
@@ -18,19 +17,13 @@ router.post('/register', function(req, res) {
 		location: req.body.location
 	}).then(function(user) {
 		// if user is registered without errors, create a token
-		var token = jwt.sign({ id: user.id }, config.secret, {
-			expiresIn: 86400 // expires in 24 hours
-		});
-
-		res.status(200).send({ auth: true, token: token });
-		//res.redirect('/' + req.body.username);
+		auth.handler(req, res);
 	}).catch(function(err) {
 		return res.status(500).send('There was a problem registering the user.');
 	});
 });
 
 router.post('/login', function(req, res) {
-
 	models.User.findOne({ 
 		where: {
 			$or: [
@@ -40,19 +33,8 @@ router.post('/login', function(req, res) {
 		}
 	}).then(function (user) {
 		// if no user is returned, then... d'oh
-		if (!user) return res.status(404).send('No user found.');
-    
-		// check if the password is valid
-		var passwordIsValid = bcrypt.compareSync(req.body.password, user.password);
-		if (!passwordIsValid) return res.status(401).send({ auth: false, token: null });
-
-		// if user is found and password is valid, create a token
-		var token = jwt.sign({ id: user.id }, config.secret, {
-			expiresIn: 86400 // expires in 24 hours
-		});
-
-		// return the information including token as JSON
-		res.status(200).json({ auth: true, token: token });
+		if (!user) auth.notFound();
+		auth.handler(req. res);
 	}).catch(function(err) {
 		return res.status(500).send('Error on the server.');
 	});
@@ -63,7 +45,8 @@ router.get('/logout', function(req, res) {
 });
 
 // updates a user's information
-router.put('/:id/update', VerifyToken, function(req, res) {
+router.put('/:id/update', function(req, res) {
+	auth.validate(req, res, auth.done);
 	if (req.userId !== req.params.id)
 		return res.status(401).send('You aren\'t authorized to do this!');
 	models.User.update({ 
@@ -83,9 +66,8 @@ router.put('/:id/update', VerifyToken, function(req, res) {
 });
 
 // adds an album to the current user's collection
-router.post('/api/album/:albumId/add/:userId', VerifyToken, function(req, res) {
-	if (req.userId !== req.params.userId)
-		return res.status(401).send('You aren\'t authorized to do this!');
+router.post('/api/album/:albumId/add/:userId', function(req, res) {
+	auth.validate(req, res, auth.done);
 	models.UserAlbum.create({
 		AlbumId: req.params.albumId,
 		UserId: req.params.userId
@@ -97,9 +79,8 @@ router.post('/api/album/:albumId/add/:userId', VerifyToken, function(req, res) {
 });
 
 // searches for albums in the current user's collection
-router.post('/:id/search', VerifyToken, function(req, res) {
-	if (req.userId !== req.params.id)
-		return res.status(401).send('You aren\'t authorized to do this!');
+router.post('/:id/search', function(req, res) {
+	auth.validate(req, res, auth.done);
 	var whereObj;
 	if (req.body.type === 'title') {
 		whereObj = {

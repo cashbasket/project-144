@@ -1,12 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var models = require('../models');
-var VerifyToken = require('./VerifyToken');
+var auth = require('../lib/helpers');
 
 // creates a new post for the current user
-router.post('/:userId', VerifyToken, function(req, res) {
-	if (req.userId !== req.params.userId)
-		return res.status(401).send('You aren\'t authorized to do this!');
+router.post('/:userId', auth.validate, function(req, res) {
 	models.Post.create({ 
 		body: req.body.body,
 		isPublic: req.body.isPublic,
@@ -20,9 +18,7 @@ router.post('/:userId', VerifyToken, function(req, res) {
 });
 
 // updates a post for the current user
-router.put('/:postId/:userId', VerifyToken, function(req, res) {
-	if (req.userId !== req.params.userId)
-		return res.status(401).send('You aren\'t authorized to do this!');
+router.put('/:postId/:userId', auth.validate, function(req, res) {
 	models.Post.update({ 
 		body: req.body.body,
 		isPublic: req.body.isPublic,
@@ -40,9 +36,7 @@ router.put('/:postId/:userId', VerifyToken, function(req, res) {
 });
 
 // deletes a post
-router.delete('/delete/:userId/:postId', VerifyToken, function(req, res) {
-	if (req.userId !== req.params.userId)
-		return res.status(401).send('You aren\'t authorized to do this!');
+router.delete('/delete/:userId/:postId', auth.validate, function(req, res) {
 	models.Post.destroy({
 		where: {
 			id: req.params.postId,
