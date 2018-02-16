@@ -1,6 +1,6 @@
-var express = require('express');
 require('dotenv').config();
-
+var express = require('express');
+var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var db = require('./models');
 
@@ -10,6 +10,7 @@ var PORT = process.env.PORT || 3000;
 // Sets up the Express app to handle data parsing
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(cookieParser());
 
 app.use(express.static('public'));
 
