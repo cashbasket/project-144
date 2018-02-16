@@ -28,6 +28,23 @@ router.get('/login', function(req, res) {
 	res.render('login');
 });
 
+router.post('/login', function(req, res) {
+	models.User.findOne({ 
+		where: {
+			$or: [
+				{ email : { $eq: req.body.login } },
+				{ username : { $eq: req.body.login } },
+			]
+		}
+	}).then(function (user) {
+		// if no user is returned, then... d'oh
+		if (!user.dataValues) auth.notFound();
+		auth.handler(req, res, 'login');
+	}).catch(function(err) {
+		return res.status(500).send('Error on the server.');
+	});
+});
+
 router.post('/logout', function(req, res) {
 	auth.logout(req, res, function() {
 		res.redirect(200, '/');
@@ -70,6 +87,30 @@ router.get('/user/:username', auth.validate, function(req, res) {
 	}).catch(function(err) {
 		res.json(err);
 	});
+});
+
+// route for the post page
+router.get('/user/:username/post', auth.validate, function(req, res) {
+	if (req.query.postId) {
+		models.Post.findOne({
+			where: {
+				id: req.query.postId
+			}
+		}).then(function(post) {
+			if(post.dataValues) {
+				var postObj = {
+					post: post
+				};
+				//return res.render('post', postObj);
+				return res.json(postObj);
+			}
+		}).catch(function(err) {
+			return res.json(err);
+		});
+	} else {
+		//res.render('post');
+		return res.json('NEW POST');
+	}
 });
 
 // gets all data for the specified album

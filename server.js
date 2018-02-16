@@ -18,14 +18,8 @@ app.use(express.static('public'));
 var RootController = require('./controllers/RootController');
 app.use(RootController);
 
-var UserController = require('./controllers/UserController');
-app.use('/api/user', UserController);
-
-var AlbumController = require('./controllers/AlbumController');
-app.use('/api/album', AlbumController);
-
-var PostController = require('./controllers/PostController');
-app.use('/api/post', PostController);
+var ApiController = require('./controllers/ApiController');
+app.use('/api', ApiController);
 
 // Sync with DB and then listen
 db.sequelize.sync().then(function() {
