@@ -2,11 +2,11 @@ var express = require('express');
 var router = express.Router();
 var models = require('../models');
 var auth = require('../lib/helpers');
+var querystring = require('querystring');
 
 // creates a new post for the current user
 router.post('/:userId/:albumId', auth.validate, function(req, res) {
 	if (req.userId !== req.params.userId) {
-		console.log('YOU LOSE!');
 		return res.redirect(401, '/login');
 	}
 	models.Post.create({ 
@@ -28,8 +28,6 @@ router.put('/:postId/:userId', auth.validate, function(req, res) {
 	models.Post.update({ 
 		body: req.body.body,
 		isPublic: req.body.isPublic,
-		UserId: req.params.postId,
-		AlbumId: req.params.albumId
 	}, {
 		where: {
 			id: req.params.id
