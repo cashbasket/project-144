@@ -3,6 +3,8 @@ var router = express.Router();
 var models = require('../models');
 var Sequelize = require('sequelize');
 var auth = require('../lib/helpers');
+var querystring = require('querystring');
+var url = require('url');
 
 // default route (if user is logged in, redirects them to their profile page)
 router.get('/', auth.validate, function(req, res) {
@@ -16,8 +18,10 @@ router.get('/', auth.validate, function(req, res) {
 		});
 	}
 	//Otherwise, send them to the index page, which will let them sign in or register.
-	else
-		res.render('index');
+	else {
+		//res.render('index');
+		res.json('RENDER INDEX TEMPLATE');
+	}
 });
 
 router.get('/login', function(req, res) {
@@ -25,13 +29,16 @@ router.get('/login', function(req, res) {
 });
 
 router.post('/logout', function(req, res) {
-	auth.logout(req, res, auth.done);
+	auth.logout(req, res, function() {
+		res.redirect(200, '/');
+	});
 });
 
 // gets all data for current user, including user info, albums owned and posts made
-router.get('/user/:username', function(req, res) {
-	// TODO: authenticate user based on JSON web token to see if user has edit access
+router.get('/user/:username', auth.validate, function(req, res) {
 	var canEdit = false;
+	if (req.username === req.params.username)
+		canEdit = true;
 	models.User.findOne({
 		where: {
 			username: req.params.username

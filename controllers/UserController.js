@@ -16,10 +16,10 @@ router.post('/register', function(req, res) {
 		name: req.body.name,
 		location: req.body.location
 	}).then(function(user) {
-		// if user is registered without errors, create a token
-		auth.handler(req, res);
+		if (!user.dataValues) return res.status(500).send('There was a problem registering the user.');
+		auth.handler(req, res, 'register');
 	}).catch(function(err) {
-		return res.status(500).send('There was a problem registering the user.');
+		return res.status(500).send('There was a problem authenticating the user.');
 	});
 });
 
@@ -33,8 +33,8 @@ router.post('/login', function(req, res) {
 		}
 	}).then(function (user) {
 		// if no user is returned, then... d'oh
-		if (!user) auth.notFound();
-		auth.handler(req. res);
+		if (!user.dataValues) auth.notFound();
+		auth.handler(req, res, 'login');
 	}).catch(function(err) {
 		return res.status(500).send('Error on the server.');
 	});
@@ -45,8 +45,7 @@ router.get('/logout', function(req, res) {
 });
 
 // updates a user's information
-router.put('/:id/update', function(req, res) {
-	auth.validate(req, res, auth.done);
+router.put('/update/:id', auth.validate, function(req, res) {
 	if (req.userId !== req.params.id)
 		return res.status(401).send('You aren\'t authorized to do this!');
 	models.User.update({ 
@@ -59,15 +58,16 @@ router.put('/:id/update', function(req, res) {
 			id: req.params.id
 		}
 	}).then(function(user) {
-		res.json(user);
+		res.redirect(200, '/user/' + req.username);
 	}).catch(function(err) {
 		res.json(err);
 	});
 });
 
 // adds an album to the current user's collection
-router.post('/api/album/:albumId/add/:userId', function(req, res) {
-	auth.validate(req, res, auth.done);
+router.post('/:userId/add/:albumId', auth.validate, function(req, res) {
+	if(req.userId !== req.params.userId)
+		res.redirect(401, '/login');
 	models.UserAlbum.create({
 		AlbumId: req.params.albumId,
 		UserId: req.params.userId
@@ -79,8 +79,7 @@ router.post('/api/album/:albumId/add/:userId', function(req, res) {
 });
 
 // searches for albums in the current user's collection
-router.post('/:id/search', function(req, res) {
-	auth.validate(req, res, auth.done);
+router.post('/:id/search', auth.validate, function(req, res) {	
 	var whereObj;
 	if (req.body.type === 'title') {
 		whereObj = {
@@ -94,10 +93,10 @@ router.post('/:id/search', function(req, res) {
 	} else if (req.body.type === 'artist') {
 		whereObj = {
 			$or: [
-				{ '$Artist.artist_name$' : { $eq: req.body.query } },
-				{ '$Artist.artist_name$' : { like: req.body.query + ' %' } },
-				{ '$Artist.artist_name$': { like: '% ' + req.body.query } },
-				{ '$Artist.artist_name$': { like: '% ' + req.body.query + ' %' } }
+				{ '$Albums.Artist.artist_name$' : { $eq: req.body.query } },
+				{ '$Albums.Artist.artist_name$' : { like: req.body.query + ' %' } },
+				{ '$Albums.Artist.artist_name$': { like: '% ' + req.body.query } },
+				{ '$Albums.Artist.artist_name$': { like: '% ' + req.body.query + ' %' } }
 			]
 		};
 	}
@@ -106,12 +105,8 @@ router.post('/:id/search', function(req, res) {
 		where: {
 			id: req.params.id
 		},
-		attributes: { 
-			include: [[Sequelize.fn('COUNT', Sequelize.col('posts.UserId')), 'postCount']] 
-		},
 		include: [{
 			model: models.Album,
-			through: models.UserAlbum,
 			where: whereObj,
 			required: false,
 			include: [{
@@ -126,7 +121,7 @@ router.post('/:id/search', function(req, res) {
 			}]
 		}, {
 			model: models.Post,
-			required: true
+			required: false
 		}]
 	}).then(function(userData) {
 		var userObj = {

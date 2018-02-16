@@ -4,14 +4,18 @@ var models = require('../models');
 var auth = require('../lib/helpers');
 
 // creates a new post for the current user
-router.post('/:userId', auth.validate, function(req, res) {
+router.post('/:userId/:albumId', auth.validate, function(req, res) {
+	if (req.userId !== req.params.userId) {
+		console.log('YOU LOSE!');
+		return res.redirect(401, '/login');
+	}
 	models.Post.create({ 
 		body: req.body.body,
 		isPublic: req.body.isPublic,
 		UserId: req.params.userId,
-		AlbumId: req.body.albumId
+		AlbumId: req.params.albumId
 	}).then(function(post) {
-		res.json(post);
+		res.redirect(200, '/user/' + req.username);
 	}).catch(function(err) {
 		res.json(err);
 	});
@@ -19,6 +23,8 @@ router.post('/:userId', auth.validate, function(req, res) {
 
 // updates a post for the current user
 router.put('/:postId/:userId', auth.validate, function(req, res) {
+	if (req.userId !== req.params.userId)
+		return res.redirect(401, '/login');
 	models.Post.update({ 
 		body: req.body.body,
 		isPublic: req.body.isPublic,
@@ -37,6 +43,8 @@ router.put('/:postId/:userId', auth.validate, function(req, res) {
 
 // deletes a post
 router.delete('/delete/:userId/:postId', auth.validate, function(req, res) {
+	if (req.userId !== req.params.userId)
+		return res.redirect(401, '/login');
 	models.Post.destroy({
 		where: {
 			id: req.params.postId,
