@@ -15,7 +15,8 @@
      	top: 90%;
      	bottom:40%;
      	position: absolute;
-     	left:50%;
+     	left:48%;
+     	padding: 2em;
      }
 
      .login-secton {
