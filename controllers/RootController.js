@@ -4,7 +4,11 @@ var models = require('../models');
 var Sequelize = require('sequelize');
 var auth = require('../lib/helpers');
 var querystring = require('querystring');
+var nodemailer = require('nodemailer');
 var url = require('url');
+var bcrypt = require('bcryptjs');
+var async = require('async');
+var crypto = require('crypto');
 
 // default route (if user is logged in, redirects them to their profile page)
 router.get('/', auth.validate, function(req, res) {
@@ -49,6 +53,126 @@ router.post('/logout', function(req, res) {
 	auth.logout(req, res, function() {
 		res.redirect(200, '/');
 	});
+});
+
+// HELP I FORGOT MY PASSWORD
+router.get('/forgot', function(req, res) {
+	res.render('forgot');
+});
+
+router.post('/forgot', function(req, res, next) {
+	async.waterfall([
+		function(done) {
+			crypto.randomBytes(20, function(err, buf) {
+				var token = buf.toString('hex');
+				done(err, token);
+			});
+		},
+		function(token, done) {
+			models.User.findOne({ 
+				where: {
+					email: req.body.email 
+				}
+			}).then(function(user) {
+				if (!user) {
+					req.flash('error', 'No account with that email address exists.');
+					return res.redirect('/forgot');
+				}
+
+				return models.User.update({
+					resetPasswordToken: token,
+					resetPasswordExpires: Date.now() + 3600000
+				}, {
+					where: {
+						email: req.body.email
+					}
+				});
+			}).then(function(result) {
+				var smtpTransport = nodemailer.createTransport({
+					service: 'gmail',
+					auth: {
+						user: process.env.MAIL_ADDRESS,
+						pass: process.env.MAIL_PW
+					}
+				});
+				var mailOptions = {
+					to: req.body.email,
+					from: 'cashbasket@gmail.com',
+					subject: 'Project 144 Password Reset',
+					text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' 	+ 'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
+						'http://' + req.headers.host + '/reset/' + token + '\n\n' +
+						'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+				};
+				return smtpTransport.sendMail(mailOptions);
+			}).then(function(result) {
+				res.redirect(200, '/forgot/?success=true');
+			}).catch(function(err) {
+				res.redirect(500, '/forgot');
+			});
+		}
+	]);
+});
+
+// Password reset page
+router.get('/reset/:token', function(req, res) {
+	models.User.findOne({ 
+		resetPasswordToken: req.params.token, 
+		resetPasswordExpires: { $gt: Date.now() } 
+	}).then(function(user) {
+		if (!user) {
+			return res.redirect('/forgot');
+		}
+		//res.render('reset');
+	});
+});
+
+router.post('/reset/:token', function(req, res) {
+	var userEmail;
+	async.waterfall([
+		function(done) {
+			models.User.findOne({ 
+				where: {
+					resetPasswordToken: req.params.token, 
+					resetPasswordExpires: { $gt: Date.now() } 
+				}
+			}).then(function(user) {
+				if (!user) {
+					return res.redirect(500, '/forgot/?nouser=true');
+				}
+				userEmail = user.email;
+
+				return models.User.update({
+					password: bcrypt.hashSync(req.body.password, 8),
+					resetPasswordToken: null,
+					resetPasswordExpires: null
+				}, {
+					where: {
+						email: userEmail
+					}
+				});
+			}).then(function(result) {
+				var smtpTransport = nodemailer.createTransport({
+					service: 'gmail',
+					auth: {
+						user: process.env.MAIL_ADDRESS,
+						pass: process.env.MAIL_PW
+					}
+				});
+				var mailOptions = {
+					to: userEmail,
+					from: 'cashbasket@gmail.com',
+					subject: 'Your Project 144 password has been changed',
+					text: 'Hello,\n\n' +
+					'This is a confirmation that the password for your account has just been changed.\n'
+				};
+				return smtpTransport.sendMail(mailOptions);
+			}).then(function(result) {
+				res.redirect(200, '/');
+			}).catch(function(err) {
+				res.redirect(500, '/');
+			});
+		}
+	]);
 });
 
 // gets all data for current user, including user info, albums owned and posts made
