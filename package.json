@@ -28,6 +28,9 @@
     "express-handlebars": "^3.0.0",
     "express-rate-limit": "^2.11.0",
     "jsonwebtoken": "^8.1.1",
-    "mysql2": "^1.5.2"
+    "mysql2": "^1.5.2",
+    "nodemailer": "^4.4.2",
+    "sequelize": "^4.33.3",
+    "uuid": "^3.2.1"
   }
 }
