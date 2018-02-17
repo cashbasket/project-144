@@ -92,9 +92,9 @@ router.post('/forgot', function(req, res, next) {
 				to: req.body.email,
 				from: process.env.MAIL_ADDRESS,
 				subject: 'Project 144 Password Reset',
-				text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' 	+ 'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
-							'http://' + req.headers.host + '/reset/' + token + '\n\n' +
-							'If you did not request this, please ignore this email and your password will remain unchanged.\n'
+				text: 'Greetings!\n\n You are receiving this email because you (or someone else) has requested a password reset for your Project 144 account.\n\n' + 'To complete the password reset process, please click on the link below, or paste it into your browser:\n\n' +
+				'https://' + req.headers.host + '/reset/' + token + '\n\n' +
+				'If you did not request this email, please ignore this email and your password will remain unchanged.\n'
 			};
 			return smtpTransport.sendMail(mailOptions);
 		}).then(function(result) {
@@ -153,7 +153,7 @@ router.post('/reset/:token', function(req, res) {
 			from: process.env.MAIL_ADDRESS,
 			subject: 'Your Project 144 password has been changed',
 			text: 'Hello,\n\n' +
-					'This is a confirmation that the password for your account has just been changed.\n'
+				'We\'re just letting you know that the password for your Project 144 account was successfully changed.\n'
 		};
 		return smtpTransport.sendMail(mailOptions);
 	}).then(function(result) {
