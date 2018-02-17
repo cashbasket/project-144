@@ -22,6 +22,7 @@
     "mysql": "^2.15.0",
     "mysql2": "^1.5.2",
     "pug": "^2.0.0-rc.4",
-    "sequelize": "^4.33.3"
+    "sequelize": "^4.33.3",
+    "startbootstrap-heroic-features": "^4.0.0"
   }
 }
