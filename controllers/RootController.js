@@ -97,7 +97,7 @@ router.post('/forgot', function(req, res, next) {
 				});
 				var mailOptions = {
 					to: req.body.email,
-					from: 'cashbasket@gmail.com',
+					from: process.env.MAIL_ADDRESS,
 					subject: 'Project 144 Password Reset',
 					text: 'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' 	+ 'Please click on the following link, or paste this into your browser to complete the process:\n\n' +
 						'http://' + req.headers.host + '/reset/' + token + '\n\n' +
@@ -160,7 +160,7 @@ router.post('/reset/:token', function(req, res) {
 				});
 				var mailOptions = {
 					to: userEmail,
-					from: 'cashbasket@gmail.com',
+					from: process.env.MAIL_ADDRESS,
 					subject: 'Your Project 144 password has been changed',
 					text: 'Hello,\n\n' +
 					'This is a confirmation that the password for your account has just been changed.\n'
