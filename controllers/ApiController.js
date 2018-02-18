@@ -51,6 +51,8 @@ router.post('/user/:userId/:albumId', auth.validate, function(req, res) {
 	models.UserAlbum.create({
 		AlbumId: req.params.albumId,
 		UserId: req.params.userId
+	}).then(function(result) {
+		res.status(200).end();
 	}).catch(function(err) {
 		res.json(err);
 	});
@@ -154,6 +156,8 @@ router.delete('/post/:userId/:postId', auth.validate, function(req, res) {
 		where: {
 			id: req.params.postId,
 		}
+	}).then(function(result) {
+		res.status(200).end();
 	}).catch(function(err) {
 		res.json(err);
 	});
