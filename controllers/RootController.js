@@ -22,8 +22,7 @@ router.get('/', auth.validate, function(req, res) {
 	}
 	//Otherwise, send them to the index page, which will let them sign in or register.
 	else {
-		//res.render('index');
-		res.json('RENDER INDEX TEMPLATE');
+		res.render('index', { showNav: false });
 	}
 });
 
@@ -97,8 +96,6 @@ router.post('/forgot', function(req, res, next) {
 				'If you did not request this email, please ignore this email and your password will remain unchanged.\n'
 			};
 			return smtpTransport.sendMail(mailOptions);
-		}).then(function(result) {
-			res.redirect(200, '/forgot/?success=true');
 		}).catch(function(err) {
 			res.redirect(500, '/forgot');
 		});
@@ -156,8 +153,6 @@ router.post('/reset/:token', function(req, res) {
 				'We\'re just letting you know that the password for your Project 144 account was successfully changed.\n'
 		};
 		return smtpTransport.sendMail(mailOptions);
-	}).then(function(result) {
-		res.redirect(200, '/');
 	}).catch(function(err) {
 		res.redirect(500, '/');
 	});
@@ -194,8 +189,7 @@ router.get('/user/:username', auth.validate, function(req, res) {
 			user: userData,
 			canEdit: canEdit
 		};
-		//res.render('user', userObj);
-		res.json(userObj);
+		res.render('user', userObj);
 	}).catch(function(err) {
 		res.json(err);
 	});
@@ -214,14 +208,13 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 					post: post
 				};
 				//return res.render('post', postObj);
-				return res.json(postObj);
+				return res.render('post', postObj);
 			}
 		}).catch(function(err) {
-			return res.json(err);
+			res.json(err);
 		});
 	} else {
-		//res.render('post');
-		return res.json('NEW POST');
+		res.render('post');
 	}
 });
 
@@ -255,8 +248,7 @@ router.get('/album/:id', auth.validate, function(req, res) {
 		var albumObj = {
 			album: albumData
 		};
-		//res.render('album', albumObj);
-		res.json(albumObj);
+		res.render('album', albumObj);
 	}).catch(function(err) {
 		res.json(err);
 	});

@@ -51,8 +51,6 @@ router.post('/user/:userId/:albumId', auth.validate, function(req, res) {
 	models.UserAlbum.create({
 		AlbumId: req.params.albumId,
 		UserId: req.params.userId
-	}).then(function(result) {
-		res.json(result);
 	}).catch(function(err) {
 		res.json(err);
 	});
@@ -107,8 +105,7 @@ router.post('/user/:id/search', auth.validate, function(req, res) {
 		var userObj = {
 			user: userData
 		};
-		//res.render('user', userObj);
-		res.json(userObj);
+		res.render('user', userObj);
 	}).catch(function(err) {
 		res.json(err);
 	});
@@ -143,7 +140,7 @@ router.put('/post/:postId/:userId', auth.validate, function(req, res) {
 			id: req.params.id
 		}
 	}).then(function(post) {
-		res.json(post);
+		res.redirect(200, '/user/' + req.username);
 	}).catch(function(err) {
 		res.json(err);
 	});
@@ -157,8 +154,6 @@ router.delete('/post/:userId/:postId', auth.validate, function(req, res) {
 		where: {
 			id: req.params.postId,
 		}
-	}).then(function(result) {
-		res.json(result);
 	}).catch(function(err) {
 		res.json(err);
 	});
@@ -205,10 +200,9 @@ router.post('/album/search', auth.validate, function(req, res) {
 		}]
 	}).then(function(albumData) {
 		var albumObj = {
-			albums: albumData,
+			albums: albumData
 		};
-		//res.render('search', albumObj);
-		res.json(albumObj);
+		res.render('search', albumObj);
 	}).catch(function(err) {
 		res.json(err);
 	});
