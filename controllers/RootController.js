@@ -84,6 +84,8 @@ router.post('/forgot', function(req, res, next) {
 				'If you did not request this email, please ignore this email and your password will remain unchanged.\n'
 			};
 			return smtpTransport.sendMail(mailOptions);
+		}).then(function(result) {
+			res.json(result);
 		}).catch(function(err) {
 			res.redirect(500, '/forgot');
 		});
@@ -141,6 +143,8 @@ router.post('/reset/:token', function(req, res) {
 				'We\'re just letting you know that the password for your Project 144 account was successfully changed.\n'
 		};
 		return smtpTransport.sendMail(mailOptions);
+	}).then(function(result) {
+		res.redirect('/');
 	}).catch(function(err) {
 		res.redirect(500, '/');
 	});
@@ -175,7 +179,24 @@ router.get('/user/:username', auth.validate, function(req, res) {
 			}]
 		}, {
 			model: models.Post,
-			required: false
+			required: false,
+			include: [{
+				model: models.Album,
+				required: false,
+				include: [{
+					model: models.Artist,
+					required: false,
+				}, {
+					model: models.Label,
+					required: false
+				}, {
+					model: models.Genre,
+					required: false
+				}]
+			}],
+			order: [
+				['createdAt', 'DESC']
+			]
 		}]
 	}).then(function(userData) {
 		var userObj = {
@@ -191,6 +212,32 @@ router.get('/user/:username', auth.validate, function(req, res) {
 	}).catch(function(err) {
 		res.json(err);
 	});
+});
+
+// route for the user edit page
+router.get('/user/:username/edit', auth.validate, function(req, res) {
+	if (req.username && req.username === req.params.username) {
+		var gravatarUrl = gravatar.url(req.email, {s: '200', r: 'pg', d: '404'}, true);
+		models.User.findOne({
+			where: {
+				username: req.params.username
+			}
+		}).then(function(user) {
+			if(user) {
+				var userObj = {
+					user: user.dataValues,
+					extra: {
+						gravatar: gravatarUrl
+					}
+				};
+				res.render('user', userObj);
+			}
+		}).catch(function(err) {
+			res.json(err);
+		});
+	} else {
+		res.redirect('/');
+	}
 });
 
 // route for the post page

@@ -1,0 +1,80 @@
+{{#if user}}
+<div id="updateSuccess" class="alert alert-success d-none">
+	<p class="mb-0">User information updated successfully.</p>
+</div>
+
+<h2 class="profile-title">You Are {{user.username}}</h2>
+<h6>Member since {{formatDate user.createdAt "MM/DD/YYYY"}}</h6>
+
+<fieldset>
+	<legend>Profile Image:</legend>
+	<div class="row">
+		<div class="col-md-2">
+			<img src="{{#if extra.gravatar}}{{extra.gravatar}}{{else}}/assets/img/silhouette.jpg{{/if}}" class="profile-img img-fluid" />
+		</div>
+		<div class="col-md-10">
+			<p>Profile Images are powered by  <a href="https://www.gravatar.com" target="_blank">Gravatar</a>, a free service that allows you to associate an avatar with your email address.</p>
+			<p>To set your gravatar, visit <a href="https://www.gravatar.com" target="_blank">https://www.gravatar.com.</a></p>
+		</div>
+	</div>
+</fieldset>
+<br>
+<form id="userEditForm">
+	<input type="hidden" id="username" value="{{user.username}}">
+	<div class="row">
+		<div class="col-md-6">
+			<fieldset>
+				<legend>Change Email Address</legend>
+				<div id="fgEmail" class="form-group">
+					<label for="email">Email Address</label>
+					<input required value="{{user.email}}" type="email" class="form-control" name="email" id="email" aria-describedby="emailHelp" placeholder="Email Address">
+					<div id="badEmail" class="invalid-feedback">That email address is already in use by another account.</div>
+				</div>
+				<div id="fgConfirmEmail" class="form-group">
+					<label for="confirmEmail">Confirm Email Address</label>
+					<input required value="{{user.email}}" type="email" class="form-control" name="confirmEmail" id="confirmEmail" aria-describedby="emailHelp" placeholder="Confirm Email Address">
+					<div id="badConfirmEmail" class="invalid-feedback">Email address fields don't match.</div>
+				</div>
+			</fieldset>
+			<fieldset>
+				<legend>Change Password</legend>
+				<div id="fgPassword" class="form-group">
+					<label for="password">Enter Current Password</label>
+					<input type="password" class="form-control" name="password" id="password" aria-describedby="username" placeholder="New Password">
+					<div id="badPassword" class="invalid-feedback">Incorrect password.</div>
+				</div>
+				<div id="fgNewPassword" class="form-group">
+					<label for="newPassword">Enter New Password</label>
+					<input type="password" class="form-control" name="newPassword" id="newPassword" aria-describedby="username" placeholder="New Password">
+					<div id="badSNewPassword" class="invalid-feedback">Passwords must be between 8 and 16 characters.</div>
+				</div>
+				<div id="fgConfirmPassword" class="form-group">
+					<label for="confirmPassword">Confirm New Password</label>
+					<input type="password" class="form-control" name="confirmPassword" id="confirmPassword" aria-describedby="username" placeholder="Confirm Password">
+					<div id="badConfirmPassword" class="invalid-feedback">Passwords do not match.</div>
+				</div>
+			</fieldset>
+		</div>
+		<div class="col-md-6">
+			<fieldset>
+				<legend>Personal Info</legend>
+				
+				<div id="fgName" class="form-group">
+					<label for="name">Your Name</label>
+					<input value="{{user.name}}" type="text" class="form-control" name="name" id="name" placeholder="Name">
+				</div>
+				<div id="fgLocation" class="form-group">
+					<label for="location">Your Location</label>
+					<input value="{{user.location}}" type="text" class="form-control" name="location" id="location" placeholder="Location">
+				</div>
+				<div id="fgBio" class="form-group">
+					<label for="email">Your [Brief] Bio</label>
+					<textarea maxlength="255" class="form-control" id="bio" name="bio" placeholder="Tell people about yourself." rows="8">{{user.bio}}</textarea>
+				</div>
+			</fieldset>
+		</div>
+	</div>
+	<button type="submit" class="btn btn-primary">Update Profile</button>
+</form>
+{{/if}}
+<br><br><br>

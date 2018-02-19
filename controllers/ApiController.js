@@ -38,20 +38,44 @@ router.post('/user/register', function(req, res) {
 });
 
 // updates a user's information
-router.put('/user/:id', auth.validate, function(req, res) {
-	if (req.userId !== req.params.id)
-		return res.status(401).send('You aren\'t authorized to do this!');
-	models.User.update({ 
-		email: req.body.email,
-		name: req.body.name,
-		location: req.body.location,
-		bio: req.body.bio
-	}, {
+router.put('/user/:username/edit', auth.validate, function(req, res) {
+	if (req.username !== req.params.username)
+		return res.redirect('/');
+
+	models.User.findOne({
 		where: {
-			id: req.params.id
+			username: req.params.username
+		}
+	}).then(function(currentUser) {
+		console.log(currentUser.dataValues);
+		if(currentUser.dataValues) {
+			return models.User.findOne({
+				where: {
+					email: req.body.email
+				}
+			});
 		}
 	}).then(function(user) {
-		res.redirect(200, '/user/' + req.username);
+		var passwordsMatch = bcrypt.compareSync(req.body.currentPassword, user.dataValues.password);
+		if (user && user.dataValues.username !== req.params.username) {
+			res.json({ error: 'email in use' });
+		}	
+		if(req.body.currentPassword.length && req.body.newPassword.length && !passwordsMatch) {
+			res.json({ error: 'bad password' });
+		}
+		return models.User.update({ 
+			email: req.body.email,
+			password: req.body.currentPassword.length ? bcrypt.hashSync(req.body.newPassword, 8) : user.dataValues.password,
+			name: req.body.name,
+			location: req.body.location,
+			bio: req.body.bio
+		}, {
+			where: {
+				username: req.params.username
+			}
+		});
+	}).then(function(result) {
+		res.json(result);
 	}).catch(function(err) {
 		res.json(err);
 	});
