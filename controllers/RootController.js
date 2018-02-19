@@ -252,12 +252,10 @@ router.get('/album/:id', auth.validate, function(req, res) {
 	});
 });
 
-router.get('/user/:username/albums/search', auth.validate, function(req, res) {
-	var loggedIn, canEdit = false;
+router.get('/albums/search', auth.validate, function(req, res) {
+	var loggedIn = false;
 	if (req.username)
 		loggedIn = true;
-	if (req.username === req.params.username)
-		canEdit = true;
 
 	models.Album.findAll({
 		include: [{
@@ -269,6 +267,12 @@ router.get('/user/:username/albums/search', auth.validate, function(req, res) {
 		}, {
 			model: models.Label,
 			required: true	
+		}, {
+			model: models.User,
+			required: false,
+			where: {
+				id: req.userId
+			}
 		}, {
 			model: models.Post,
 			required: false,
@@ -286,14 +290,75 @@ router.get('/user/:username/albums/search', auth.validate, function(req, res) {
 		var albumsObj = {
 			albums: albums,
 			extra: {
-				username: req.params.username,
+				userId: req.userId,
+				username: req.username,
 				loggedIn: loggedIn,
-				canEdit: canEdit
+				title: true
 			}
 		};
 		//res.json(albumsObj);
 		res.render('search', albumsObj);
 	}).catch(function(err){
+		res.json(err);
+	});
+});
+
+// searches for all albums that match the search parameters
+router.post('/albums/search', auth.validate, function(req, res) {
+	var loggedIn = false;
+	if (req.username)
+		loggedIn = true;
+
+	var whereObj;
+	if (req.body.type === 'title') {
+		whereObj = {
+			$or: [
+				{ title : { $eq: req.body.query } },
+				{ title : { like: req.body.query + ' %' } },
+				{ title: { like: '% ' + req.body.query } },
+				{ title: { like: '% ' + req.body.query + ' %' } }
+			]
+		};
+	} else if (req.body.type === 'artist') {
+		whereObj = {
+			$or: [
+				{ '$Artist.artist_name$' : { $eq: req.body.query } },
+				{ '$Artist.artist_name$' : { like: req.body.query + ' %' } },
+				{ '$Artist.artist_name$': { like: '% ' + req.body.query } },
+				{ '$Artist.artist_name$': { like: '% ' + req.body.query + ' %' } }
+			]
+		};
+	}
+
+	models.Album.findAll({
+		where: whereObj,
+		limit: 100,
+		order: [
+			['createdAt', 'DESC']
+		],
+		include: [{
+			model: models.Artist,
+			required: true
+		}, {
+			model: models.Genre,
+			required: true
+		}, {
+			model: models.Label,
+			required: true	
+		}]
+	}).then(function(albumData) {
+		var albumsObj = {
+			albums: albumData,
+			extra: {
+				userId: req.userId,
+				username: req.username,
+				loggedIn: loggedIn,
+				title: req.body.type === 'title' ? true : false,
+				searched: true
+			}
+		};
+		res.render('search', albumsObj);
+	}).catch(function(err) {
 		res.json(err);
 	});
 });

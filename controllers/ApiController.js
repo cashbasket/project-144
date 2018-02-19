@@ -58,14 +58,17 @@ router.put('/user/:id', auth.validate, function(req, res) {
 });
 
 // adds an album to the current user's collection
-router.post('/user/:userId/:albumId', auth.validate, function(req, res) {
+router.post('/album/:userId/:albumId', auth.validate, function(req, res) {
 	if(req.userId !== req.params.userId)
 		res.redirect(401, '/login');
 	models.UserAlbum.create({
 		AlbumId: req.params.albumId,
 		UserId: req.params.userId
 	}).then(function(result) {
-		res.status(200).end();
+		var resultObj = {
+			username: req.username
+		};
+		res.json(resultObj);
 	}).catch(function(err) {
 		res.json(err);
 	});
@@ -171,55 +174,6 @@ router.delete('/post/:userId/:postId', auth.validate, function(req, res) {
 		}
 	}).then(function(result) {
 		res.status(200).end();
-	}).catch(function(err) {
-		res.json(err);
-	});
-});
-
-// searches for all albums that match the search parameters
-router.post('/album/search', auth.validate, function(req, res) {
-	var whereObj;
-	if (req.body.type === 'title') {
-		whereObj = {
-			$or: [
-				{ title : { $eq: req.body.query } },
-				{ title : { like: req.body.query + ' %' } },
-				{ title: { like: '% ' + req.body.query } },
-				{ title: { like: '% ' + req.body.query + ' %' } }
-			]
-		};
-	} else if (req.body.type === 'artist') {
-		whereObj = {
-			$or: [
-				{ '$Artist.artist_name$' : { $eq: req.body.query } },
-				{ '$Artist.artist_name$' : { like: req.body.query + ' %' } },
-				{ '$Artist.artist_name$': { like: '% ' + req.body.query } },
-				{ '$Artist.artist_name$': { like: '% ' + req.body.query + ' %' } }
-			]
-		};
-	}
-
-	models.Album.findAll({
-		where: whereObj,
-		limit: 100,
-		order: [
-			['createdAt', 'DESC']
-		],
-		include: [{
-			model: models.Artist,
-			required: true
-		}, {
-			model: models.Genre,
-			required: true
-		}, {
-			model: models.Label,
-			required: true	
-		}]
-	}).then(function(albumData) {
-		var albumObj = {
-			albums: albumData
-		};
-		res.render('search', albumObj);
 	}).catch(function(err) {
 		res.json(err);
 	});
