@@ -8,6 +8,7 @@ var nodemailer = require('nodemailer');
 var url = require('url');
 var bcrypt = require('bcryptjs');
 var crypto = require('crypto');
+var gravatar = require('gravatar');
 
 // default route (if user is logged in, redirects them to their profile page)
 router.get('/', auth.validate, function(req, res) {
@@ -22,7 +23,7 @@ router.get('/', auth.validate, function(req, res) {
 	}
 	//Otherwise, send them to the index page, which will let them sign in or register.
 	else {
-		res.render('index', { showNav: false });
+		res.render('index', { hideNav: true });
 	}
 });
 
@@ -31,20 +32,7 @@ router.get('/login', function(req, res) {
 });
 
 router.post('/login', function(req, res) {
-	models.User.findOne({ 
-		where: {
-			$or: [
-				{ email : { $eq: req.body.login } },
-				{ username : { $eq: req.body.login } },
-			]
-		}
-	}).then(function (user) {
-		// if no user is returned, then... d'oh
-		if (!user.dataValues) auth.notFound();
-		auth.handler(req, res, 'login');
-	}).catch(function(err) {
-		return res.status(500).send('Error on the server.');
-	});
+	auth.handler(req, res, 'login');
 });
 
 router.post('/logout', function(req, res) {
@@ -111,7 +99,7 @@ router.get('/reset/:token', function(req, res) {
 		if (!user) {
 			return res.redirect('/forgot');
 		}
-		//res.render('reset');
+		res.render('reset');
 	});
 });
 
@@ -161,6 +149,11 @@ router.post('/reset/:token', function(req, res) {
 // gets all data for current user, including user info, albums owned and posts made
 router.get('/user/:username', auth.validate, function(req, res) {
 	var canEdit = false;
+	var loggedIn = false;
+	var gravatarUrl = gravatar.url(req.email, {s: '200', r: 'pg', d: '404'}, true);
+
+	if (req.username)
+		loggedIn = true;
 	if (req.username === req.params.username)
 		canEdit = true;
 	models.User.findOne({
@@ -187,9 +180,14 @@ router.get('/user/:username', auth.validate, function(req, res) {
 	}).then(function(userData) {
 		var userObj = {
 			user: userData,
-			canEdit: canEdit
+			extra: {
+				loggedIn: loggedIn,
+				canEdit: canEdit,
+				gravatar: gravatarUrl
+			}
 		};
-		res.render('user', userObj);
+		//res.json(userObj);
+		res.render('profile', userObj);
 	}).catch(function(err) {
 		res.json(err);
 	});
@@ -250,6 +248,52 @@ router.get('/album/:id', auth.validate, function(req, res) {
 		};
 		res.render('album', albumObj);
 	}).catch(function(err) {
+		res.json(err);
+	});
+});
+
+router.get('/user/:username/albums/search', auth.validate, function(req, res) {
+	var loggedIn, canEdit = false;
+	if (req.username)
+		loggedIn = true;
+	if (req.username === req.params.username)
+		canEdit = true;
+
+	models.Album.findAll({
+		include: [{
+			model: models.Artist,
+			required: true
+		}, {
+			model: models.Genre,
+			required: true
+		}, {
+			model: models.Label,
+			required: true	
+		}, {
+			model: models.Post,
+			required: false,
+			include: [{
+				model: models.User,
+				required: true
+			}]
+		}],
+		limit: 100,
+		subQuery: false,
+		order: [
+			['createdAt', 'DESC']
+		]
+	}).then(function(albums) {
+		var albumsObj = {
+			albums: albums,
+			extra: {
+				username: req.params.username,
+				loggedIn: loggedIn,
+				canEdit: canEdit
+			}
+		};
+		//res.json(albumsObj);
+		res.render('search', albumsObj);
+	}).catch(function(err){
 		res.json(err);
 	});
 });
