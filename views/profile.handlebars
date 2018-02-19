@@ -16,10 +16,19 @@
 				<p>{{user.bio}}</p>
 			{{/if}}
 			{{#if extra.canEdit}}
-				<a href="/user/{{user.username}}/edit">Edit your profile</a>
+				<a href="/user/{{user.username}}/edit">Edit your Information</a>
 			{{/if}}
 		</div>
 	</div>
+	{{#if extra.canEdit}}
+	<br>
+	<div class="row">
+		<div class="col-md-12">
+			<a href="/albums/search" class="btn btn-primary"><i class="fa fa-plus"></i> Add to Your Collection</a>
+			<a href="/user/{{user.id}}/post" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> Write a Post</a>
+		</div>
+	</div>
+	{{/if}}
 	<div class="row">
 		<div class="col-md-12">
 			{{#unless user.Albums.length}}
@@ -35,14 +44,39 @@
 				<div class="tabbable">
 					<ul class="nav nav-tabs" id="myTab" role="tablist">
 						<li class="nav-item">
-							<a class="nav-link active" id="home-tab" data-toggle="tab" href="#tabCollection" role="tab" aria-controls="home" aria-selected="true">Album Collection</a>
+							<a class="nav-link active" id="profile-tab" data-toggle="tab" href="#tabPosts" role="tab" aria-controls="profile" aria-selected="false">{{user.username}}'s Posts</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" id="profile-tab" data-toggle="tab" href="#tabPosts" role="tab" aria-controls="profile" aria-selected="false">{{user.username}}'s Posts</a>
+							<a class="nav-link" id="home-tab" data-toggle="tab" href="#tabCollection" role="tab" aria-controls="home" aria-selected="true">{{user.username}}'s Albums</a>
 						</li>
 					</ul>
 					<div class="tab-content" id="profileTabs">
-						<div class="tab-pane fade show active" id="tabCollection" role="tabpanel" aria-labelledby="home-tab">
+						<div class="tab-pane fade show active" id="tabPosts" role="tabpanel" aria-labelledby="profile-tab">
+							<div class="list-group"></div>
+							{{#each user.Posts}}
+								<div id="post-{{id}}" class="card text-white bg-dark mb-3">
+									<div class="card-body">
+										<div class="row">
+											<div class="col-md-2">
+												<a href="/albums/{{Album.id}}"><img src="{{Album.album_art}}" class="img-fluid" /></a>
+											</div>
+											<div class="col-md-10">
+												<div class="d-flex w-100 justify-content-between">
+													<h5 class="white" style="margin:0">RE: "{{Album.title}}" by {{Album.Artist.artist_name}}</h5>
+													{{#if ../extra.canEdit}}
+														<a class="edit-post" href="/user/{{../user.username}}/post/?post={{id}}"><i class="far fa-edit"></i></a>
+													{{/if}}
+												</div>
+												<small><em>Posted {{formatDate createdAt "M/DD/YYYY @ H:mma"}}</em></small>
+												<br><br>
+												<p class="mb-1">{{body}}</p>
+											</div>
+										</div>
+									</div>
+								</div>
+							{{/each}}
+						</div>
+						<div class="tab-pane fade" id="tabCollection" role="tabpanel" aria-labelledby="home-tab">
 							{{#groupedEach 4 user.Albums}}
 								<div class="row">
 									{{#each this}}
@@ -66,11 +100,6 @@
 								</div>
 								<br>
 							{{/groupedEach}}
-						</div>
-						<div class="tab-pane fade" id="tabPosts" role="tabpanel" aria-labelledby="profile-tab">
-							{{#each user.Posts}}
-								Test
-							{{/each}}
 						</div>
 					</div>
 				</div>

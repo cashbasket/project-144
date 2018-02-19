@@ -1,3 +1,7 @@
+body {
+	font-size: 16px !important;
+}
+
 nav {
 	margin-bottom: 40px;
 }
@@ -67,11 +71,18 @@ nav {
 	margin: 0 !important;
 }
 
+.edit-post {
+	color: #fff !important;
+}
+
+a.btn.btn-primary {
+	text-decoration: none;
+}
+
 /* THEME OVERRIDES */
 .tabbable {
     margin-top: 30px;
     overflow: hidden;
-    border-bottom: 1px solid #000000;
 }
 
 .nav-tabs {
@@ -89,9 +100,7 @@ nav {
 }
 
 .tab-content {
-    padding: 30px;
-    border-left: 1px solid #000000 ; 
-    border-right: 1px solid #000000;
+    padding-top: 30px;
 }
 
 .nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link,
