@@ -10,17 +10,30 @@ var querystring = require('querystring');
 // creates a new user
 router.post('/user/register', function(req, res) {
 	var hashedPassword = bcrypt.hashSync(req.body.password, 8);
-	models.User.create({ 
-		username: req.body.username,
-		password: hashedPassword,
-		email: req.body.email,
-		name: req.body.name,
-		location: req.body.location
+	models.User.findOne({
+		where: {
+			$or: [
+				{ username : { $eq: req.body.username } },
+				{ email: { $eq: req.body.email} }
+			]
+		}
 	}).then(function(user) {
-		if (!user.dataValues) return res.status(500).send('There was a problem registering the user.');
+		if (user) {
+			if (user.email === req.body.email)
+				return res.json({ error: 'email' });
+			if (user.username === req.body.username)
+				return res.json({ error: 'username' });
+		} else {
+			return models.User.create({ 
+				username: req.body.username,
+				password: hashedPassword,
+				email: req.body.email
+			});
+		}
+	}).then(function() {
 		auth.handler(req, res, 'register');
 	}).catch(function(err) {
-		return res.status(500).send('There was a problem authenticating the user.');
+		res.json(err);
 	});
 });
 
