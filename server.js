@@ -3,27 +3,28 @@ var express = require('express');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var exphbs = require('express-handlebars');
+var handlebars = require('./lib/handlebars')(exphbs);
 var db = require('./models');
 
 var app = express();
 var RateLimit = require('express-rate-limit');
 var PORT = process.env.PORT || 3000;
-var limiter = new RateLimit({
-	windowMs: 15*60*1000,
-	max: 100,
-	delayMs: 0
-});
+// var limiter = new RateLimit({
+// 	windowMs: 15*60*1000,
+// 	max: 100,
+// 	delayMs: 0
+// });
 
 // Sets up the Express app to handle data parsing
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(limiter);
+// app.use(limiter);
 
 app.use(express.static('public'));
 
 // Set Handlebars as the default templating engine.
-app.engine('handlebars', exphbs({ defaultLayout: 'main' }));
+app.engine('handlebars', handlebars.engine);
 app.set('view engine', 'handlebars');
 
 // Import controllers
