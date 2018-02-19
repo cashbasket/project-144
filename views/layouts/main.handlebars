@@ -9,7 +9,7 @@
 	<link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 <body>
-	{{#if showNav}}
+	{{#unless hideNav}}
 	<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
 		<div class="container">
 			<a class="navbar-brand" href="#">Project 144</a>
@@ -28,18 +28,26 @@
 						<a class="nav-link" href="#">About Project 144</a>
 					</li>
 				</ul>
-				<form class="form-inline my-2 my-lg-0">
-					<input class="form-control mr-sm-2" type="text" placeholder="Search">
-					<button class="btn btn-secondary my-2 my-sm-0" type="submit">Search Music</button>
-				</form>
+				{{#if extra.loggedIn}}
+					<button id="logout" class="btn btn-secondary">Log Out</button>
+				{{else}}
+					<button id="login" class="btn btn-secondary">Log In</button>
+				{{/if}}
 			</div>
 		</div>
 	</nav>
-	{{/if}}
-	<div class="container">
+	{{/unless}}
+	<div class="container main-content">
 		{{{ body }}}
 	</div>
 	<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+	<script src="/assets/js/index.js"></script>
+	<script src="/assets/js/forgot.js"></script>
+	<script src="/assets/js/profile.js"></script>
+	<script src="/assets/js/reset.js"></script>
+	<script src="/assets/js/search.js"></script>
+	<script src="/assets/js/user.js"></script>
 	</body>
 </html>

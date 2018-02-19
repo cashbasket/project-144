@@ -2,41 +2,57 @@ nav {
 	margin-bottom: 40px;
 }
 
-.main {
-	height: 100%;
+.main-content h4 {
+	line-height: 1.5;
 }
-/* body {
-	background: white }
-section {
-	background: black;
-	color: white;
-	border-radius: 1em;
-	padding: 1em;
+
+.main-content a {
+	text-decoration: underline;
+}
+
+/* Album collection */
+.album-container {
+	position: relative;
+}
+
+.album-image {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.album-overlay {
 	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 100%;
+	width: 100%;
+	opacity: 0;
+	transition: .5s ease;
+	background-color: #000000;
+}
+
+.album-container:hover .album-overlay {
+	opacity: 1;
+}
+
+.album-overlay-text {
+	color: white;
+	position: absolute;
+	width: 100%;
 	top: 50%;
 	left: 50%;
-	margin-right: -50%;
-	transform: translate(-50%, -50%) }
+	transform: translate(-50%, -50%);
+	-ms-transform: translate(-50%, -50%);
+	text-align: center;
+}
 
-	.main-container {
-	top: 90%;
-	bottom:40%;
-	position: absolute;
-	left:48%;
-	padding: 2em;
-	}
+.album-overlay-text a {
+	color: #fff;
+}
 
-	.login-secton {
-	top: 10%;
-	bottom:10%;
-	position: absolute;
-	left:50%;
-	}
-
-	.text-primary {
-	padding: 10px;
-	}
-
-	.progress-bar {
-	top-margin:30px;
-} */
+.white {
+	color: #fff;
+}

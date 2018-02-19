@@ -21,7 +21,13 @@ module.exports = function(sequelize, DataTypes) {
 	User.prototype.toJSON =  function () {
 		var values = Object.assign({}, this.get());
 		delete values.password;
+		delete values.resetPasswordToken;
+		delete values.resetPasswordExpires;
 		return values;
+	};
+
+	User.prototype.formatCreateDate = function() {
+		return this.createdAt;
 	};
 
 	return User;
