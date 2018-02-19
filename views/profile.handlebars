@@ -1,0 +1,77 @@
+{{#if user}}
+	<div class="row">
+		<div class="col-md-2">
+			{{#if extra.gravatar}}
+				<img src="{{extra.gravatar}}" class="profile-img img-fluid" />
+			{{/if}}
+		</div>
+		<div class="col-md-10">
+			<h2>{{#if user.name}}{{user.name}}{{else}}{{user.username}}{{/if}}</h2>
+			<h5>Member since {{formatDate user.createdAt "MM/DD/YYYY"}}</h5>
+			{{#if user.location}}
+				<p>Location: {{user.location}}</p>
+			{{/if}}
+			{{#if user.bio}}
+				<p>{{user.bio}}</p>
+			{{/if}}
+			{{#if extra.canEdit}}
+				<a href="/user/{{user.username}}/edit">Edit your profile</a>
+			{{/if}}
+		</div>
+	</div>
+	<p>&nbsp;</p>
+	<div class="row">
+		<div class="col-md-12">
+			{{#unless user.Albums.length}}
+				<div class="alert alert-dismissible alert-warning">
+					{{#if extra.canEdit}}
+						<h4 class="alert-heading">HIYA!</h4>
+						<h5>We noticed you don't have any albums in your collection yet. That's no good.  You should <a href="/user/{{extra.username}}/albums/search">add some albums</a> and then write about them!</h4>
+					{{else}}
+						<h4>This user has no albums in their collection.</h4>
+					{{/if}}
+				</div>
+			{{else}}
+				<ul class="nav nav-tabs" id="myTab" role="tablist">
+					<li class="nav-item">
+						<a class="nav-link active" id="home-tab" data-toggle="tab" href="#tabCollection" role="tab" aria-controls="home" aria-selected="true">Album Collection</a>
+					</li>
+					<li class="nav-item">
+						<a class="nav-link" id="profile-tab" data-toggle="tab" href="#tabPosts" role="tab" aria-controls="profile" aria-selected="false">Posts</a>
+					</li>
+				</ul>
+				<div class="tab-content" id="profileTabs">
+					<div class="tab-pane fade show active" id="tabCollection" role="tabpanel" aria-labelledby="home-tab">
+						{{#groupedEach 4 user.Albums}}
+							<div class="row">
+								{{#each this}}
+								<div class="col-md-3">
+									<div class="album-container">
+										<img src="{{this.album_art}}" class="album-image img-fluid" />
+										<div class="album-overlay">
+											<div class="album-overlay-text">
+												<h5 class="white">{{this.title}}</h5>
+												<p>by {{this.Artist.artist_name}}</p>
+												{{#if ../../extra.canEdit}}
+												<p>
+													<a href="/user/{{../../user.username}}/post"><i class="fa fa-plus"></i> Write a Post</a>
+												</p>
+												{{/if}}
+											</div>
+										</div>
+									</div>
+								</div>
+								{{/each}}
+							</div>
+						{{/groupedEach}}
+					</div>
+					<div class="tab-pane fade" id="tabPosts" role="tabpanel" aria-labelledby="profile-tab">
+						{{#each user.Posts}}
+							Test
+						{{/each}}
+					</div>
+				</div>
+			{{/unless}}
+		</div>
+	</div>
+{{/if}}

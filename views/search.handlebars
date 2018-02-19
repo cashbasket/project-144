@@ -1,0 +1,27 @@
+<h2>Search Albums</h2>
+
+<p>We currently have over 21,000 albums in our database.</p>
+
+{{#groupedEach 4 albums}}
+	<div class="row">
+		{{#each this}}
+		<div class="col-md-3">
+			<div class="album-container">
+				<img src="{{this.album_art}}" class="album-image img-fluid" />
+				<div class="album-overlay">
+					<div class="album-overlay-text">
+						<h5 class="white">{{this.title}}</h5>
+						<p>by {{this.Artist.artist_name}}</p>
+						{{#if ../../extra.canEdit}}
+						<p>
+							<a href="#" data-id="{{this.id}}"><i class="fa fa-plus"></i> Add to Collection</a>
+						</p>
+						{{/if}}
+					</div>
+				</div>
+			</div>
+		</div>
+		{{/each}}
+	</div>
+	<br>
+{{/groupedEach}}
