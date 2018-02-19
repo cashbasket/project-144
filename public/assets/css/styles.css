@@ -10,7 +10,7 @@ nav {
 	text-decoration: underline;
 }
 
-/* Album collection */
+/* ALBUM COLLECTION / ALBUM SEARCH STYLES */
 .album-container {
 	position: relative;
 }
@@ -41,6 +41,7 @@ nav {
 .album-overlay-text {
 	color: white;
 	position: absolute;
+	padding: 20px;
 	width: 100%;
 	top: 50%;
 	left: 50%;
@@ -56,3 +57,62 @@ nav {
 .white {
 	color: #fff;
 }
+
+.add-album {
+	text-decoration: underline !important;
+	cursor: pointer;
+}
+
+.profile-title {
+	margin: 0 !important;
+}
+
+/* THEME OVERRIDES */
+.tabbable {
+    margin-top: 30px;
+    overflow: hidden;
+    border-bottom: 1px solid #000000;
+}
+
+.nav-tabs {
+    margin: 0;
+}
+
+.nav-item {
+	text-transform: uppercase;
+	font-weight: bold;
+	font-size: 16px;
+}
+
+.nav-item a {
+	text-decoration: none !important;
+}
+
+.tab-content {
+    padding: 30px;
+    border-left: 1px solid #000000 ; 
+    border-right: 1px solid #000000;
+}
+
+.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link,
+.nav-tabs .nav-link.hover .nav-tabs .nav-item.show .nav-link {
+    border-color: #000000;
+    border-bottom-color: transparent;
+}
+.nav-tabs {
+	border-color: #000000;
+    border-bottom: 1px solid #000000;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:focus,
+.nav-tabs > li.active > a:hover{
+    background-color:#cccccc;
+    border-bottom-color: transparent;
+}
+
+.nav-tabs > li > a:hover{
+	background-color: #cccccc !important;
+	border: 1px solid #000000;
+	color:#000;
+} 
