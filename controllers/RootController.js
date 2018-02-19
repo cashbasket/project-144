@@ -227,6 +227,7 @@ router.get('/user/:username/edit', auth.validate, function(req, res) {
 				var userObj = {
 					user: user.dataValues,
 					extra: {
+						loggedIn: req.username ? true : false,
 						gravatar: gravatarUrl
 					}
 				};
