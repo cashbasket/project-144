@@ -2,6 +2,30 @@
 
 <p>We currently have over 21,000 albums in our database.</p>
 
+<form method="post">
+	<div id="searchForm" class="form-row">
+		<div class="col-md-3">
+			<h6>Search by:</h6>
+			<select name="type" id="type" class="form-control">
+				<option value="title" {{#if extra.title}}selected{{/if}}>Album Title</option>
+				<option value="artist" {{#unless extra.title}}selected{{/unless}}>Artist Name</option>
+			</select>
+		</div>
+		<div class="col-md-7">
+			<h6>Enter an <span id="searchTypeText">album title</span>:</h6>
+			<input required name="query" id="query" type="text" class="form-control" placeholder="">
+		</div>
+		<div class="col-md-2">
+			<br>
+			<button type="submit" class="btn btn-primary">Search</button>
+		</div>
+	</div>
+</form>
+<br><br>
+
+<h4>{{#if extra.searched}}Search Results{{else}}Recently Added{{/if}}</h4>
+<br>
+<div id="results">
 {{#groupedEach 4 albums}}
 	<div class="row">
 		{{#each this}}
@@ -12,10 +36,12 @@
 					<div class="album-overlay-text">
 						<h5 class="white">{{this.title}}</h5>
 						<p>by {{this.Artist.artist_name}}</p>
-						{{#if ../../extra.canEdit}}
-						<p>
-							<a href="#" data-id="{{this.id}}"><i class="fa fa-plus"></i> Add to Collection</a>
-						</p>
+						{{#if ../../extra.loggedIn}}
+							{{#unless this.Users}}
+								<p><a id="album-{{this.id}}" class="add-album" data-id="{{../../extra.userId}}" data-album-id="{{this.id}}"><i class="fa fa-plus"></i> Add to Collection</a></p>
+							{{else}}
+								<p><a href="/user/{{../../extra.username}}/post/?album={{this.id}}"><i class="fas fa-pencil-alt"></i> Write a Post</a></p>
+							{{/unless}}
 						{{/if}}
 					</div>
 				</div>
@@ -25,3 +51,4 @@
 	</div>
 	<br>
 {{/groupedEach}}
+</div>
