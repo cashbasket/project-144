@@ -1,0 +1,51 @@
+{{#if album}}
+	<div class="row">
+		<div class="col-md-3">
+			<img src="{{album.album_art}}" class="profile-img img-fluid" />
+		</div>
+		<div class="col-md-9">
+			<h2 class="profile-title">{{album.title}}</h2>
+			<h5>by {{album.Artist.artist_name}}<br><br>
+			Label: {{album.Label.label_name}}<br>
+			Release Year: {{album.release_year}}<br>
+			Genre: {{album.Genre.genre_name}}</h5>
+		</div>
+	</div>
+	<br>
+	{{#if album.Posts}}
+	<h4>User Posts about This Album</h4>
+	<div class="row">
+		<div class="col-md-12">
+			<div class="tab-pane fade show active" id="tabPosts" role="tabpanel" aria-labelledby="profile-tab">
+				<div class="list-group"></div>
+				{{#each album.Posts}}
+					{{#if isPublic}}
+						<div id="post-{{id}}" class="card text-white bg-dark mb-3">
+							<div class="card-body">
+								<div class="row">
+									<div class="col-md-2">
+										<a href="/user/{{User.username}}">
+											{{#ifEquals User.gravatarUrl 'https://s.gravatar.com/avatar/c36cfd2d186891b0f2645d4b7a31169d?s=200&r=pg&d=404'}}
+												<img src="/assets/img/silhouette.jpg" class="img-fluid" />
+											{{else}}
+												<img src="{{User.gravatarUrl}}" class="img-fluid post-profile-image" />
+											{{/ifEquals}}
+										</a>
+										<h6><a href="/user/{{User.username}}" class="white album-username">{{User.username}}</a></h6>
+									</div>
+									<div class="col-md-10">
+										<p class="mb-1">{{body}}</p>
+										<small><em>Posted {{formatDate createdAt "M/DD/YYYY @ h:mma"}}</em></small>
+									</div>
+								</div>
+							</div>
+						</div>
+					{{/if}}
+				{{/each}}
+			</div>
+		</div>
+	</div>
+	{{else}}
+		<h4>No one has written about this album yet.</h4>
+	{{/if}}
+{{/if}}
