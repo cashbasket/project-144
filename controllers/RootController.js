@@ -27,8 +27,11 @@ router.get('/', auth.validate, function(req, res) {
 	}
 });
 
-router.get('/login', function(req, res) {
-	res.render('login');
+router.get('/login', auth.validate, function(req, res) {
+	if (!req.username)
+		res.render('login', { hideNav: true });
+	else
+		res.redirect('/user/' + req.username);
 });
 
 router.post('/login', function(req, res) {
@@ -260,7 +263,6 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 				var postObj = {
 					post: post
 				};
-				//return res.render('post', postObj);
 				return res.render('post', postObj);
 			}
 		}).catch(function(err) {

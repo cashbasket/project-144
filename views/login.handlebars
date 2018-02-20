@@ -1,0 +1,22 @@
+<div class="row no-nav">
+	<div class="col-md-6 offset-md-3">
+		<form id="loginForm">
+			<fieldset>
+				<legend>Log In to Project 144</legend>
+				<div id="fgLoginUserEmail" class="form-group">
+					<label for="loginUserEmail">Email Address or Username</label>
+					<input required type="text" class="form-control" id="loginUser" aria-describedby="username" placeholder="Enter your email or username">
+					<div id="badLoginUser" class="invalid-feedback">Invalid username.</div>
+				</div>
+				<div id="fgLoginPassword" class="form-group">
+					<label class="form-control-label" for="LoginPassword">Password</label>
+					<input required type="password" class="form-control" id="loginPassword" placeholder="Enter your password">
+					<div id="badLoginPassword" class="invalid-feedback">Invalid password.</div>
+				</div>
+				<button type="submit" class="btn btn-primary">Log In</button>
+			</fieldset>
+			<br>
+			<p><a href="/forgot">Help, I forgot my password!</a></p>
+		</form>
+	</div>
+</div>

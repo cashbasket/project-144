@@ -50,7 +50,6 @@ router.put('/user/:username/edit', auth.validate, function(req, res) {
 			username: req.params.username
 		}
 	}).then(function(currentUser) {
-		console.log(currentUser.dataValues);
 		if(currentUser.dataValues) {
 			return models.User.findOne({
 				where: {
@@ -104,31 +103,31 @@ router.post('/album/:userId/:albumId', auth.validate, function(req, res) {
 });
 
 // searches for albums in the current user's collection
-router.post('/user/:id/search', auth.validate, function(req, res) {	
+router.post('/user/:username/search', auth.validate, function(req, res) {	
 	var whereObj;
+	var canEdit = false;
+	var loggedIn = false;
+	if (req.username === req.params.username)
+		canEdit = true;
+	if (req.username)
+		loggedIn = true;
 	if (req.body.type === 'title') {
 		whereObj = {
 			$or: [
-				{ title : { $eq: req.body.query } },
-				{ title : { like: req.body.query + ' %' } },
-				{ title: { like: '% ' + req.body.query } },
-				{ title: { like: '% ' + req.body.query + ' %' } }
+				{ title : { like: '%' + req.body.query + '%' } },
 			]
 		};
 	} else if (req.body.type === 'artist') {
 		whereObj = {
 			$or: [
-				{ '$Albums.Artist.artist_name$' : { $eq: req.body.query } },
-				{ '$Albums.Artist.artist_name$' : { like: req.body.query + ' %' } },
-				{ '$Albums.Artist.artist_name$': { like: '% ' + req.body.query } },
-				{ '$Albums.Artist.artist_name$': { like: '% ' + req.body.query + ' %' } }
+				{ '$Albums.Artist.artist_name$' : { $like: '%' +  req.body.query + '%' } }
 			]
 		};
 	}
 
 	models.User.findOne({
 		where: {
-			id: req.params.id
+			username: req.params.username
 		},
 		include: [{
 			model: models.Album,
@@ -150,9 +149,13 @@ router.post('/user/:id/search', auth.validate, function(req, res) {
 		}]
 	}).then(function(userData) {
 		var userObj = {
-			user: userData
+			user: userData,
+			extra: {
+				loggedIn: loggedIn,
+				canEdit: canEdit
+			}
 		};
-		res.render('user', userObj);
+		res.json(userObj);
 	}).catch(function(err) {
 		res.json(err);
 	});
