@@ -154,7 +154,6 @@ router.post('/reset/:token', function(req, res) {
 router.get('/user/:username', auth.validate, function(req, res) {
 	var canEdit = false;
 	var loggedIn = false;
-	var gravatarUrl = gravatar.url(req.email, {s: '200', r: 'pg', d: '404'}, true);
 
 	if (req.username)
 		loggedIn = true;
@@ -199,9 +198,17 @@ router.get('/user/:username', auth.validate, function(req, res) {
 			]
 		}]
 	}).then(function(userData) {
+		var avatar = gravatar.url(userData.email, {s: '200', r: 'pg', d: '404'}, true);
+		var gravatarUrl;
+		if (avatar === 'https://s.gravatar.com/avatar/c36cfd2d186891b0f2645d4b7a31169d?s=200&r=pg&d=404')
+			gravatarUrl = false;
+		else
+			gravatarUrl = avatar;
+
 		var userObj = {
 			user: userData,
 			extra: {
+				username: req.username,
 				loggedIn: loggedIn,
 				canEdit: canEdit,
 				gravatar: gravatarUrl
@@ -266,12 +273,12 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 
 // gets all data for the specified album
 router.get('/album/:id', auth.validate, function(req, res) {
+	var loggedIn = false;
+	if (req.username)
+		loggedIn = true;
 	models.Album.findOne({
 		where: {
 			id: req.params.id
-		},
-		attributes: { 
-			include: [[Sequelize.fn('COUNT', Sequelize.col('posts.AlbumId')), 'postCount']] 
 		},
 		include: [{
 			model: models.Artist,
@@ -292,8 +299,15 @@ router.get('/album/:id', auth.validate, function(req, res) {
 		}]
 	}).then(function(albumData) {
 		var albumObj = {
-			album: albumData
+			album: albumData,
+			extra: {
+				userId: req.userId,
+				username: req.username,
+				loggedIn: loggedIn,
+				title: true
+			}
 		};
+		//res.json(albumObj);
 		res.render('album', albumObj);
 	}).catch(function(err) {
 		res.json(err);

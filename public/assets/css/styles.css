@@ -75,8 +75,13 @@ nav {
 	color: #fff !important;
 }
 
-a.btn.btn-primary {
+a.btn.btn-primary,
+a.album-username {
 	text-decoration: none;
+}
+
+.post-profile-image {
+	margin-bottom: 10px;
 }
 
 /* THEME OVERRIDES */

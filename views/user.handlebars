@@ -3,7 +3,10 @@
 	<p class="mb-0">User information updated successfully.</p>
 </div>
 
-<h2 class="profile-title">You Are {{user.username}}</h2>
+<div class="d-flex w-100 justify-content-between">
+	<h2 class="profile-title">You Are {{user.username}}</h2>
+	<a href="/user/{{user.username}}">&laquo; Back to profile</a>
+</div>
 <h6>Member since {{formatDate user.createdAt "MM/DD/YYYY"}}</h6>
 
 <fieldset>
@@ -74,7 +77,7 @@
 			</fieldset>
 		</div>
 	</div>
-	<button type="submit" class="btn btn-primary">Update Profile</button>
+	<button type="submit" class="btn btn-primary">Update Information</button>
 </form>
 {{/if}}
 <br><br><br>

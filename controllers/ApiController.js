@@ -6,6 +6,7 @@ var auth = require('../lib/helpers');
 var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
 var querystring = require('querystring');
+var gravatar = require('gravatar');
 
 // creates a new user
 router.post('/user/register', function(req, res) {
@@ -24,10 +25,12 @@ router.post('/user/register', function(req, res) {
 			if (user.username === req.body.username)
 				return res.json({ error: 'username' });
 		} else {
+			var gravatarUrl = gravatar.url(req.body.email, {s: '200', r: 'pg', d: '404'}, true);
 			return models.User.create({ 
 				username: req.body.username,
 				password: hashedPassword,
-				email: req.body.email
+				email: req.body.email,
+				gravatarUrl: gravatarUrl
 			});
 		}
 	}).then(function() {
@@ -63,12 +66,14 @@ router.put('/user/:username/edit', auth.validate, function(req, res) {
 		if(req.body.currentPassword.length && req.body.newPassword.length && !passwordsMatch) {
 			res.json({ error: 'bad password' });
 		}
+		var gravatarUrl = gravatar.url(req.body.email, {s: '200', r: 'pg', d: '404'}, true);
 		return models.User.update({ 
 			email: req.body.email,
 			password: req.body.currentPassword.length ? bcrypt.hashSync(req.body.newPassword, 8) : user.dataValues.password,
 			name: req.body.name,
 			location: req.body.location,
-			bio: req.body.bio
+			bio: req.body.bio,
+			gravatarUrl: gravatarUrl
 		}, {
 			where: {
 				username: req.params.username
@@ -164,7 +169,7 @@ router.post('/post/:userId/:albumId', auth.validate, function(req, res) {
 		UserId: req.params.userId,
 		AlbumId: req.params.albumId
 	}).then(function(post) {
-		res.redirect(200, '/user/' + req.username);
+		res.json(post);
 	}).catch(function(err) {
 		res.json(err);
 	});
@@ -179,10 +184,10 @@ router.put('/post/:postId/:userId', auth.validate, function(req, res) {
 		isPublic: req.body.isPublic,
 	}, {
 		where: {
-			id: req.params.id
+			id: req.params.postId
 		}
 	}).then(function(post) {
-		res.redirect(200, '/user/' + req.username);
+		res.json(post);
 	}).catch(function(err) {
 		res.json(err);
 	});

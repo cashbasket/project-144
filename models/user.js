@@ -8,6 +8,7 @@ module.exports = function(sequelize, DataTypes) {
 		name: { type: DataTypes.STRING, allowNull: true, validate: { len: [0,255] } },
 		location: { type: DataTypes.STRING, allowNull: true, validate: { len: [0,255] } },
 		bio: { type: DataTypes.STRING, allowNull: true, validate: { len: [0,255] } },
+		gravatarUrl: { type: DataTypes.STRING, allowNull: true },
 		isAdmin: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false }
 	}, {
 		freezeTableName: true
