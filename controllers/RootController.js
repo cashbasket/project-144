@@ -263,7 +263,6 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 				var postObj = {
 					post: post
 				};
-				//return res.render('post', postObj);
 				return res.render('post', postObj);
 			}
 		}).catch(function(err) {

@@ -63,7 +63,11 @@
 										<div class="card-body">
 											<div class="row">
 												<div class="col-md-2">
-													<a href="/album/{{Album.id}}"><img src="{{Album.album_art}}" class="img-fluid" /></a>
+													{{#if ../extra.loggedIn}}
+														<a href="/album/{{Album.id}}"><img src="{{Album.album_art}}" class="img-fluid" /></a>
+													{{else}}
+														<img src="{{Album.album_art}}" class="img-fluid" />
+													{{/if}}
 												</div>
 												<div class="col-md-10">
 													<div class="d-flex w-100 justify-content-between">
@@ -85,7 +89,11 @@
 												<div class="card-body">
 													<div class="row">
 														<div class="col-md-2">
-															<a href="/album/{{Album.id}}"><img src="{{Album.album_art}}" class="img-fluid" /></a>
+															{{#if ../extra.loggedIn}}
+																<a href="/album/{{Album.id}}"><img src="{{Album.album_art}}" class="img-fluid" /></a>
+															{{else}}
+																<img src="{{Album.album_art}}" class="img-fluid" />
+															{{/if}}
 														</div>
 														<div class="col-md-10">
 															<div class="d-flex w-100 justify-content-between">
@@ -108,6 +116,23 @@
 							{{/if}}
 						</div>
 						<div class="tab-pane fade" id="tabCollection" role="tabpanel" aria-labelledby="home-tab">
+							<form id="searchCollection" method="post">
+								<div class="form-row">
+									<div class="col-md-3">
+										<h6>Filter by:</h6>
+										<select name="type" id="type" class="form-control">
+											<option value="title">Album Title</option>
+											<option value="artist">Artist Name</option>
+										</select>
+									</div>
+									<div class="col-md-9">
+										<h6>Enter an <span id="searchTypeText">album title</span>:</h6>
+										<input required name="query" id="query" type="text" class="form-control" placeholder="">
+									</div>
+								</div>
+							</form>
+							<br>
+							<div id="collection">
 							{{#groupedEach 4 user.Albums}}
 								<div class="row">
 									{{#each this}}
@@ -116,7 +141,7 @@
 											<img src="{{this.album_art}}" class="album-image img-fluid" />
 											<div class="album-overlay">
 												<div class="album-overlay-text">
-													<h5 class="white">{{this.title}}</h5>
+													<h5 class="white">{{#if ../../extra.loggedIn}}<a href="/album/{{this.id}}">{{this.title}}</a>{{else}}{{this.title}}{{/if}}</h5>
 													<p>by {{this.Artist.artist_name}}</p>
 													{{#if ../../extra.canEdit}}
 													<p>
@@ -131,6 +156,7 @@
 								</div>
 								<br>
 							{{/groupedEach}}
+							</div>
 						</div>
 					</div>
 				</div>
