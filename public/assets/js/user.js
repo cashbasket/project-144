@@ -52,7 +52,6 @@ $(document).ready(function() {
 					bio: bio
 				}
 			}).then(function(data) {
-				console.log(data.error);
 				if (data.error) {
 					if (data.error === 'email in use') {
 						$('#fgEmail').addClass('has-danger');
