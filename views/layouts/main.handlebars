@@ -18,9 +18,11 @@
 			</button>
 			<div class="collapse navbar-collapse" id="navbarColor01">
 				<ul class="navbar-nav mr-auto">
+					{{#if extra.loggedIn}}
 					<li class="nav-item active">
-						<a class="nav-link" href="#">My Profile<span class="sr-only">(current)</span></a>
+						<a class="nav-link" href="/user/{{#if extra.username}}{{extra.username}}{{else}}{{user.username}}{{/if}}">My Profile<span class="sr-only">(current)</span></a>
 					</li>
+					{{/if}}
 					<li class="nav-item">
 						<a class="nav-link" href="#">Library</a>
 					</li>
@@ -43,6 +45,7 @@
 	<script src="http://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.20.1/moment.min.js"></script>
+	<script src="/assets/js/md5.min.js"></script>
 	<script src="/assets/js/index.js"></script>
 	<script src="/assets/js/forgot.js"></script>
 	<script src="/assets/js/profile.js"></script>
