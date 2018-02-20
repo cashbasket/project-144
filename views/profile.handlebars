@@ -1,14 +1,16 @@
 {{#if user}}
 	<div class="row">
 		<div class="col-md-2">
-			{{#if extra.gravatar}}
-				<img src="{{extra.gravatar}}" class="profile-img img-fluid" />
-			{{/if}}
+			{{#ifEquals User.gravatarUrl 'https://s.gravatar.com/avatar/c36cfd2d186891b0f2645d4b7a31169d?s=200&r=pg&d=404'}}
+				<img src="/assets/img/silhouette.jpg" class="img-fluid" />
+			{{else}}
+				<img src="{{user.gravatarUrl}}" class="img-fluid" />
+			{{/ifEquals}}
 		</div>
 		<div class="col-md-10">
 			<h2 class="profile-title">{{user.username}}</h2>
 			{{#if user.name}}<h5>(a.k.a. {{user.name}})</h5>{{/if}}
-			<h6>Member since {{formatDate user.createdAt "MM/DD/YYYY"}}</h6>
+			<h6>Member since {{formatDate user.createdAt "M/D/YYYY"}}</h6>
 			{{#if user.location}}
 				<p>Location: {{user.location}}</p>
 			{{/if}}
@@ -25,19 +27,20 @@
 	<div class="row">
 		<div class="col-md-12">
 			<a href="/albums/search" class="btn btn-primary"><i class="fa fa-plus"></i> Add to Your Collection</a>
-			<a href="/user/{{user.id}}/post" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> Write a Post</a>
+			<a href="/user/{{user.username}}/post" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> Write a Post</a>
 		</div>
 	</div>
 	{{/if}}
 	<div class="row">
 		<div class="col-md-12">
 			{{#unless user.Albums.length}}
-				<div class="alert alert-dismissible alert-warning">
+				<br>
+				<div class="alert alert-warning">
 					{{#if extra.canEdit}}
 						<h4 class="alert-heading">HIYA!</h4>
 						<h5>We noticed you don't have any albums in your collection yet. That's no good.  You should <a href="/user/{{extra.username}}/albums/search">add some albums</a> and then write about them!</h4>
 					{{else}}
-						<h4>This user has no albums in their collection.</h4>
+						<h4>This user has no albums in their collection. Sad.</h4>
 					{{/if}}
 				</div>
 			{{else}}
@@ -53,28 +56,56 @@
 					<div class="tab-content" id="profileTabs">
 						<div class="tab-pane fade show active" id="tabPosts" role="tabpanel" aria-labelledby="profile-tab">
 							<div class="list-group"></div>
-							{{#each user.Posts}}
-								<div id="post-{{id}}" class="card text-white bg-dark mb-3">
-									<div class="card-body">
-										<div class="row">
-											<div class="col-md-2">
-												<a href="/albums/{{Album.id}}"><img src="{{Album.album_art}}" class="img-fluid" /></a>
-											</div>
-											<div class="col-md-10">
-												<div class="d-flex w-100 justify-content-between">
-													<h5 class="white" style="margin:0">RE: "{{Album.title}}" by {{Album.Artist.artist_name}}</h5>
-													{{#if ../extra.canEdit}}
-														<a class="edit-post" href="/user/{{../user.username}}/post/?post={{id}}"><i class="far fa-edit"></i></a>
-													{{/if}}
+							{{#if user.Posts}}
+								{{#each user.Posts}}
+									{{#if isPublic}}
+									<div id="post-{{id}}" class="card text-white bg-dark mb-3">
+										<div class="card-body">
+											<div class="row">
+												<div class="col-md-2">
+													<a href="/album/{{Album.id}}"><img src="{{Album.album_art}}" class="img-fluid" /></a>
 												</div>
-												<small><em>Posted {{formatDate createdAt "M/DD/YYYY @ H:mma"}}</em></small>
-												<br><br>
-												<p class="mb-1">{{body}}</p>
+												<div class="col-md-10">
+													<div class="d-flex w-100 justify-content-between">
+														<h5 class="white" style="margin:0">RE: "{{Album.title}}" by {{Album.Artist.artist_name}}</h5>
+														{{#if ../extra.canEdit}}
+															<a class="edit-post" href="/user/{{../user.username}}/post/?post={{id}}"><i class="far fa-edit"></i></a>
+														{{/if}}
+													</div>
+													<small><em>Posted {{formatDate createdAt "M/DD/YYYY @ h:mma"}}</em></small>
+													<br><br>
+													<p class="mb-1">{{body}}</p>
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
-							{{/each}}
+									{{else}}
+										{{#if ../extra.canEdit}}
+											<div id="post-{{id}}" class="card text-white bg-dark mb-3">
+												<div class="card-body">
+													<div class="row">
+														<div class="col-md-2">
+															<a href="/album/{{Album.id}}"><img src="{{Album.album_art}}" class="img-fluid" /></a>
+														</div>
+														<div class="col-md-10">
+															<div class="d-flex w-100 justify-content-between">
+																<h5 class="white" style="margin:0">(PRIVATE) RE: "{{Album.title}}" by {{Album.Artist.artist_name}}</h5>
+																{{#if ../extra.canEdit}}
+																	<a class="edit-post" href="/user/{{../user.username}}/post/?post={{id}}"><i class="far fa-edit"></i></a>
+																{{/if}}
+															</div>
+															<p><small><em>Posted {{formatDate createdAt "M/DD/YYYY @ h:mma"}}</em><br>(NOTE: This post was marked "private," so only you can see it)</small></p>
+															<p class="mb-1">{{body}}</p>
+														</div>
+													</div>
+												</div>
+											</div>
+										{{/if}}
+									{{/if}}
+								{{/each}}
+							{{else}}
+								<h4>You have no posts yet. <a href="/user/{{user.username}}/post">You should write one.</a></h4>
+							{{/if}}
 						</div>
 						<div class="tab-pane fade" id="tabCollection" role="tabpanel" aria-labelledby="home-tab">
 							{{#groupedEach 4 user.Albums}}
