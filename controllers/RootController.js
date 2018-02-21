@@ -298,7 +298,7 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 		var userObj = {
 			user: user
 		};
-		res.json(userObj);
+		res.render('post', userObj);
 	}).catch(function(err) {
 		res.json(err);
 	});
