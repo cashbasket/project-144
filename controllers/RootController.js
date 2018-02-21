@@ -426,10 +426,6 @@ router.post('/albums/search', auth.validate, function(req, res) {
 
 	models.Album.findAll({
 		where: whereObj,
-		limit: 100,
-		order: [
-			['createdAt', 'DESC']
-		],
 		include: [{
 			model: models.Artist,
 			required: true
@@ -439,7 +435,25 @@ router.post('/albums/search', auth.validate, function(req, res) {
 		}, {
 			model: models.Label,
 			required: true	
-		}]
+		}, {
+			model: models.User,
+			required: false,
+			where: {
+				id: req.userId
+			}
+		}, {
+			model: models.Post,
+			required: false,
+			include: [{
+				model: models.User,
+				required: true
+			}]
+		}],
+		limit: 100,
+		subQuery: false,
+		order: [
+			['createdAt', 'DESC']
+		]
 	}).then(function(albumData) {
 		var albumsObj = {
 			albums: albumData,

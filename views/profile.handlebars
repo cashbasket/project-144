@@ -27,7 +27,7 @@
 	<div class="row">
 		<div class="col-md-12">
 			<a href="/albums/search" class="btn btn-primary"><i class="fa fa-plus"></i> Add to Your Collection</a>
-			<a href="/user/{{user.username}}/post" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> Write a Post</a>
+			{{#if user.Albums }}<a href="/user/{{user.username}}/post" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> Write a Post</a>{{/if}}
 		</div>
 	</div>
 	{{/if}}
@@ -38,7 +38,7 @@
 				<div class="alert alert-warning">
 					{{#if extra.canEdit}}
 						<h4 class="alert-heading">HIYA!</h4>
-						<h5>We noticed you don't have any albums in your collection yet. That's no good.  You should <a href="/user/{{extra.username}}/albums/search">add some albums</a> and then write about them!</h4>
+						<h5>We noticed you don't have any albums in your collection yet. That's no good.  You should <a href="/albums/search">add some albums</a> and then write about them!</h4>
 					{{else}}
 						<h4>This user has no albums in their collection. Sad.</h4>
 					{{/if}}
@@ -47,14 +47,14 @@
 				<div class="tabbable">
 					<ul class="nav nav-tabs" id="myTab" role="tablist">
 						<li class="nav-item">
-							<a class="nav-link active" id="profile-tab" data-toggle="tab" href="#tabPosts" role="tab" aria-controls="profile" aria-selected="false">{{user.username}}'s Posts</a>
+							<a class="nav-link {{#if user.Posts}}active{{/if}}" id="profile-tab" data-toggle="tab" href="#tabPosts" role="tab" aria-controls="profile" aria-selected="false">{{user.username}}'s Posts</a>
 						</li>
 						<li class="nav-item">
-							<a class="nav-link" id="home-tab" data-toggle="tab" href="#tabCollection" role="tab" aria-controls="home" aria-selected="true">{{user.username}}'s Albums</a>
+							<a class="nav-link {{#unless user.Posts}}active{{/unless}}" id="home-tab" data-toggle="tab" href="#tabCollection" role="tab" aria-controls="home" aria-selected="true">{{user.username}}'s Albums</a>
 						</li>
 					</ul>
 					<div class="tab-content" id="profileTabs">
-						<div class="tab-pane fade show active" id="tabPosts" role="tabpanel" aria-labelledby="profile-tab">
+						<div class="tab-pane fade {{#if user.Posts}}show active{{/if}}" id="tabPosts" role="tabpanel" aria-labelledby="profile-tab">
 							<div class="list-group"></div>
 							{{#if user.Posts}}
 								{{#each user.Posts}}
@@ -115,7 +115,7 @@
 								<h4>You have no posts yet. <a href="/user/{{user.username}}/post">You should write one.</a></h4>
 							{{/if}}
 						</div>
-						<div class="tab-pane fade" id="tabCollection" role="tabpanel" aria-labelledby="home-tab">
+						<div class="tab-pane fade {{#unless user.Posts}}show active{{/unless}}" id="tabCollection" role="tabpanel" aria-labelledby="home-tab">
 							<form id="searchCollection" method="post">
 								<div class="form-row">
 									<div class="col-md-3">

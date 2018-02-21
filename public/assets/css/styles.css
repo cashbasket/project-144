@@ -88,6 +88,14 @@ a.album-username {
 	margin-top: 50px;
 }
 
+.navbar {
+	padding: 0 10px;
+}
+.navbar-brand {
+	font-size: 36px;
+	font-family: 'Metal Mania', cursive;
+}
+
 /* THEME OVERRIDES */
 .tabbable {
     margin-top: 30px;

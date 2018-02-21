@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script defer src="https://use.fontawesome.com/releases/v5.0.1/js/all.js"></script>
     <title>Project 144</title>
+	<link href="https://fonts.googleapis.com/css?family=Metal+Mania" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/bootstrap.css">
 	<link rel="stylesheet" href="/assets/css/styles.css">
 </head>
@@ -19,16 +20,13 @@
 			<div class="collapse navbar-collapse" id="navbarColor01">
 				<ul class="navbar-nav mr-auto">
 					{{#if extra.loggedIn}}
-					<li class="nav-item active">
+					<li class="nav-item">
 						<a class="nav-link" href="/user/{{#if extra.username}}{{extra.username}}{{else}}{{user.username}}{{/if}}">My Profile<span class="sr-only">(current)</span></a>
 					</li>
+					<li class="nav-item">
+						<a class="nav-link" href="/albums/search">Search Albums</a>
+					</li>
 					{{/if}}
-					<li class="nav-item">
-						<a class="nav-link" href="#">Library</a>
-					</li>
-					<li class="nav-item">
-						<a class="nav-link" href="#">About Project 144</a>
-					</li>
 				</ul>
 				{{#if extra.loggedIn}}
 					<button id="logout" class="btn btn-secondary">Log Out</button>
