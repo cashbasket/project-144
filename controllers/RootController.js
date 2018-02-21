@@ -253,24 +253,55 @@ router.get('/user/:username/edit', auth.validate, function(req, res) {
 
 // route for the post page
 router.get('/user/:username/post', auth.validate, function(req, res) {
-	if (req.query.postId) {
-		models.Post.findOne({
+	models.User.findOne({
+		where: {
+			username: req.params.username
+		},
+		include: [{
+			model: models.Album,
+			required: false,
+			include: [{
+				model: models.Artist,
+				required: true,
+			}, {
+				model: models.Label,
+				required: true
+			}, {
+				model: models.Genre,
+				required: true
+			}]
+		}, {
+			model: models.Post,
 			where: {
 				id: req.query.postId
-			}
-		}).then(function(post) {
-			if(post.dataValues) {
-				var postObj = {
-					post: post
-				};
-				return res.render('post', postObj);
-			}
-		}).catch(function(err) {
-			res.json(err);
-		});
-	} else {
-		res.render('post');
-	}
+			},
+			required: false,
+			include: [{
+				model: models.Album,
+				required: false,
+				include: [{
+					model: models.Artist,
+					required: false,
+				}, {
+					model: models.Label,
+					required: false
+				}, {
+					model: models.Genre,
+					required: false
+				}]
+			}],
+			order: [
+				['createdAt', 'DESC']
+			]
+		}]
+	}).then(function(user) {
+		var userObj = {
+			user: user
+		};
+		res.json(userObj);
+	}).catch(function(err) {
+		res.json(err);
+	});
 });
 
 // gets all data for the specified album
