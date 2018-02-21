@@ -46,7 +46,7 @@ router.post('/logout', function(req, res) {
 
 // HELP I FORGOT MY PASSWORD
 router.get('/forgot', function(req, res) {
-	res.render('forgot');
+	res.render('forgot' , { hideNav: true });
 });
 
 router.post('/forgot', function(req, res, next) {
@@ -57,11 +57,6 @@ router.post('/forgot', function(req, res, next) {
 				email: req.body.email 
 			}
 		}).then(function(user) {
-			if (!user) {
-				req.flash('error', 'No account with that email address exists.');
-				return res.redirect('/forgot');
-			}
-	
 			return models.User.update({
 				resetPasswordToken: token,
 				resetPasswordExpires: Date.now() + 3600000
@@ -71,26 +66,28 @@ router.post('/forgot', function(req, res, next) {
 				}
 			});
 		}).then(function(result) {
-			var smtpTransport = nodemailer.createTransport({
-				service: 'gmail',
-				auth: {
-					user: process.env.MAIL_ADDRESS,
-					pass: process.env.MAIL_PW
-				}
-			});
-			var mailOptions = {
-				to: req.body.email,
-				from: process.env.MAIL_ADDRESS,
-				subject: 'Project 144 Password Reset',
-				text: 'Greetings!\n\n You are receiving this email because you (or someone else) has requested a password reset for your Project 144 account.\n\n' + 'To complete the password reset process, please click on the link below, or paste it into your browser:\n\n' +
+			if(result[0] === 1) {
+				var smtpTransport = nodemailer.createTransport({
+					service: 'gmail',
+					auth: {
+						user: process.env.MAIL_ADDRESS,
+						pass: process.env.MAIL_PW
+					}
+				});
+				var mailOptions = {
+					to: req.body.email,
+					from: process.env.MAIL_ADDRESS,
+					subject: 'Project 144 Password Reset',
+					text: 'Greetings!\n\n You are receiving this email because you (or someone else) has requested a password reset for your Project 144 account.\n\n' + 'To complete the password reset process, please click on the link below, or paste it into your browser:\n\n' +
 				'https://' + req.headers.host + '/reset/' + token + '\n\n' +
 				'If you did not request this email, please ignore this email and your password will remain unchanged.\n'
-			};
-			return smtpTransport.sendMail(mailOptions);
+				};
+				return smtpTransport.sendMail(mailOptions);
+			}
 		}).then(function(result) {
 			res.json(result);
 		}).catch(function(err) {
-			res.redirect(500, '/forgot');
+			res.redirect('/forgot');
 		});
 	});
 });
@@ -98,17 +95,19 @@ router.post('/forgot', function(req, res, next) {
 // Password reset page
 router.get('/reset/:token', function(req, res) {
 	models.User.findOne({ 
-		resetPasswordToken: req.params.token, 
-		resetPasswordExpires: { $gt: Date.now() } 
+		where: {
+			resetPasswordToken: req.params.token, 
+			resetPasswordExpires: { $gt: Date.now() } 
+		}
 	}).then(function(user) {
 		if (!user) {
 			return res.redirect('/forgot');
 		}
-		res.render('reset');
+		res.render('reset', { hideNav: true });
 	});
 });
 
-router.post('/reset/:token', function(req, res) {
+router.put('/reset/:token', function(req, res) {
 	var userEmail;
 	models.User.findOne({ 
 		where: {
@@ -116,10 +115,10 @@ router.post('/reset/:token', function(req, res) {
 			resetPasswordExpires: { $gt: Date.now() } 
 		}
 	}).then(function(user) {
-		if (!user) {
-			return res.redirect(500, '/forgot/?nouser=true');
+		if (!user.dataValues) {
+			return res.redirect('/forgot');
 		}
-		userEmail = user.email;
+		userEmail = user.dataValues.email;
 
 		return models.User.update({
 			password: bcrypt.hashSync(req.body.password, 8),
@@ -147,7 +146,7 @@ router.post('/reset/:token', function(req, res) {
 		};
 		return smtpTransport.sendMail(mailOptions);
 	}).then(function(result) {
-		res.redirect('/');
+		res.json(result);
 	}).catch(function(err) {
 		res.redirect(500, '/');
 	});
