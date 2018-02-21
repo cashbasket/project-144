@@ -27,7 +27,7 @@
 	<div class="row">
 		<div class="col-md-12">
 			<a href="/albums/search" class="btn btn-primary"><i class="fa fa-plus"></i> Add to Your Collection</a>
-			<a href="/user/{{user.username}}/post" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> Write a Post</a>
+			{{#if user.Albums }}<a href="/user/{{user.username}}/post" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> Write a Post</a>{{/if}}
 		</div>
 	</div>
 	{{/if}}
@@ -38,7 +38,7 @@
 				<div class="alert alert-warning">
 					{{#if extra.canEdit}}
 						<h4 class="alert-heading">HIYA!</h4>
-						<h5>We noticed you don't have any albums in your collection yet. That's no good.  You should <a href="/user/{{extra.username}}/albums/search">add some albums</a> and then write about them!</h4>
+						<h5>We noticed you don't have any albums in your collection yet. That's no good.  You should <a href="/albums/search">add some albums</a> and then write about them!</h4>
 					{{else}}
 						<h4>This user has no albums in their collection. Sad.</h4>
 					{{/if}}
