@@ -164,7 +164,7 @@ router.post('/user/:username/search', auth.validate, function(req, res) {
 // creates a new post for the current user
 router.post('/post/:userId/:albumId', auth.validate, function(req, res) {
 	if (req.userId !== req.params.userId) {
-		return res.redirect(401, '/login');
+		return res.redirect('/login');
 	}
 	models.Post.create({ 
 		body: req.body.body,
@@ -179,9 +179,9 @@ router.post('/post/:userId/:albumId', auth.validate, function(req, res) {
 });
 
 // updates a post for the current user
-router.put('/post/:postId/:userId', auth.validate, function(req, res) {
+router.put('/post/:userId/:postId', auth.validate, function(req, res) {
 	if (req.userId !== req.params.userId)
-		return res.redirect(401, '/login');
+		return res.redirect('/login');
 	models.Post.update({ 
 		body: req.body.body,
 		isPublic: req.body.isPublic,
@@ -199,7 +199,7 @@ router.put('/post/:postId/:userId', auth.validate, function(req, res) {
 // deletes a post
 router.delete('/post/:userId/:postId', auth.validate, function(req, res) {
 	if (req.userId !== req.params.userId)
-		return res.redirect(401, '/login');
+		return res.redirect('/login');
 	models.Post.destroy({
 		where: {
 			id: req.params.postId,

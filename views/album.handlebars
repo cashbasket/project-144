@@ -34,7 +34,7 @@
 										<h6><a href="/user/{{User.username}}" class="white album-username">{{User.username}}</a></h6>
 									</div>
 									<div class="col-md-10">
-										<p class="mb-1">{{body}}</p>
+										<p class="mb-1">{{{body}}}</p>
 										<small><em>Posted {{formatDate createdAt "M/DD/YYYY @ h:mma"}}</em></small>
 									</div>
 								</div>
@@ -46,6 +46,6 @@
 		</div>
 	</div>
 	{{else}}
-		<h4>No one has written about this album yet.</h4>
+		<h4>No one has written anything public about this album yet.</h4>
 	{{/if}}
 {{/if}}
