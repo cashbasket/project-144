@@ -1,4 +1,16 @@
-$(document).ready(function() {
+$(document).ready(function() {$('img.gravatar-img').each(function(i, el) {
+	// this will be used in a couple places (profile, user edit templates)
+	var imgUrl = $(el).attr('src');
+		$.ajax({
+			url: imgUrl,
+			type: 'HEAD',
+			crossDomain:true,
+			error: function(){
+				$(el).attr('src', '/assets/img/silhouette.jpg');
+			}
+		});
+	});
+
 	$('#signupForm').on('submit', function(event) {
 		event.preventDefault();
 		$('.form-group').removeClass('has-danger');
