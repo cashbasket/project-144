@@ -96,6 +96,22 @@ a.album-username {
 	font-family: 'Metal Mania', cursive;
 }
 
+#postBody {
+	height: 200px;
+}
+
+.message-remaining {
+    margin-top: 5px;
+}
+
+.delete-section {
+	padding-top: 30px;
+}
+
+.red {
+	color: #f00;
+}
+
 /* THEME OVERRIDES */
 .tabbable {
     margin-top: 30px;
