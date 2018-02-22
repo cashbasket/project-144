@@ -2,15 +2,39 @@ body {
 	font-size: 16px !important;
 }
 
+.site {
+	display: flex;
+	min-height: 100vh;
+	flex-direction: column;
+}
+
+.site-content {
+	flex: 1;
+}
+
+.homepage-container {
+	background-color: #f1f1f1;
+	padding: 20px;
+}
+
+.intro {
+	color: #000;
+}
+
+h1 {
+	font-family: 'Abril Fatface', cursive;
+	font-size: 64px;
+}
+
 nav {
 	margin-bottom: 40px;
 }
 
-.main-content h4 {
+.site-content h4 {
 	line-height: 1.5;
 }
 
-.main-content a {
+.site-content a {
 	text-decoration: underline;
 }
 
@@ -93,7 +117,7 @@ a.album-username {
 }
 .navbar-brand {
 	font-size: 36px;
-	font-family: 'Metal Mania', cursive;
+	font-family: 'Abril Fatface', cursive;
 }
 
 #postBody {
@@ -110,6 +134,15 @@ a.album-username {
 
 .red {
 	color: #f00;
+}
+
+footer {
+	background-color: #000;
+	color: #fff;
+	font-size: 14px;
+	margin-top: 20px;
+	padding: 10px 0;
+	text-align: center;
 }
 
 /* THEME OVERRIDES */
