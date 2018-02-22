@@ -288,14 +288,14 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 					model: models.Genre,
 					required: false
 				}]
-			}],
-			order: [
-				['createdAt', 'DESC']
-			]
+			}]
 		}]
 	}).then(function(user) {
 		var userObj = {
-			user: user
+			user: user,
+			extra: {
+				loggedIn: true
+			}
 		};
 		res.render('post', userObj);
 	}).catch(function(err) {
@@ -323,6 +323,9 @@ router.get('/album/:id', auth.validate, function(req, res) {
 			required: true	
 		}, {
 			model: models.Post,
+			where: {
+				isPublic: true
+			},
 			required: false,
 			include: [{
 				model: models.User,
