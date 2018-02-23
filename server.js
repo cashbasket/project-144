@@ -7,13 +7,12 @@ var handlebars = require('./lib/handlebars')(exphbs);
 var db = require('./models');
 
 var app = express();
-var RateLimit = require('express-rate-limit');
 var PORT = process.env.PORT || 3000;
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
+app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, for instance)
 
 app.use(express.static('public'));
 
@@ -28,9 +27,13 @@ app.use(RootController);
 var ApiController = require('./controllers/ApiController');
 app.use('/api', ApiController);
 
-// Sync with DB and then listen
-db.sequelize.sync().then(function() {
-	app.listen(PORT, function() {
-		console.log('Listening on port %s', PORT);
-	});
+app.listen(PORT, function() {
+	console.log('Listening on port %s', PORT);
 });
+
+// To create the database tables automatically from the Sequelize models, uncomment the following code:
+// db.sequelize.sync().then(function() {
+// 	app.listen(PORT, function() {
+// 		console.log('Listening on port %s', PORT);
+// 	});
+// });
