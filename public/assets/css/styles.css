@@ -144,7 +144,26 @@ footer {
 	padding: 10px 0;
 	text-align: center;
 }
+/* JQUERY COMBOBOX STUFF */
+.custom-combobox {
+    position: relative;
+	display: inline-block;
+	width: 100%;
+}
 
+.custom-combobox-toggle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin-left: -1px;
+    padding: 0;
+}
+
+.custom-combobox-input {
+    margin: 0;
+	padding: 5px 10px;
+	width: 94% !important;
+}
 /* THEME OVERRIDES */
 .tabbable {
     margin-top: 30px;
