@@ -88,7 +88,7 @@ router.put('/user/:username/edit', auth.validate, function(req, res) {
 // adds an album to the current user's collection
 router.post('/album/:userId/:albumId', auth.validate, function(req, res) {
 	if(req.userId !== req.params.userId)
-		res.redirect(401, '/login');
+		res.redirect('/login');
 	models.UserAlbum.create({
 		AlbumId: req.params.albumId,
 		UserId: req.params.userId
