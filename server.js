@@ -9,17 +9,11 @@ var db = require('./models');
 var app = express();
 var RateLimit = require('express-rate-limit');
 var PORT = process.env.PORT || 3000;
-// var limiter = new RateLimit({
-// 	windowMs: 15*60*1000,
-// 	max: 100,
-// 	delayMs: 0
-// });
 
-// Sets up the Express app to handle data parsing
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-// app.use(limiter);
+app.enable('trust proxy'); // only if you're behind a reverse proxy (Heroku, Bluemix, AWS if you use an ELB, custom Nginx setup, etc)
 
 app.use(express.static('public'));
 

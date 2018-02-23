@@ -1,15 +1,21 @@
 var express = require('express');
 var router = express.Router();
 var models = require('../models');
-var Sequelize = require('sequelize');
 var auth = require('../lib/helpers');
-var jwt = require('jsonwebtoken');
 var bcrypt = require('bcryptjs');
-var querystring = require('querystring');
 var gravatar = require('gravatar');
+var RateLimit = require('express-rate-limit');
+ 
+var createAccountLimiter = new RateLimit({
+	windowMs: 60*60*1000,
+	delayAfter: 1,
+	delayMs: 3*1000,
+	max: 5,
+	message: 'Too many accounts created from this IP, please try again after an hour'
+});
 
 // creates a new user
-router.post('/user/register', function(req, res) {
+router.post('/user/register', createAccountLimiter, function(req, res) {
 	var hashedPassword = bcrypt.hashSync(req.body.password, 8);
 	models.User.findOne({
 		where: {
