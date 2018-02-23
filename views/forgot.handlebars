@@ -1,0 +1,21 @@
+<div class="row no-nav">
+	<div class="col-md-6 offset-md-3">
+		<h1 class="text-center">Project 144</h1><br><br>
+		<div id="emailSent" class="alert alert-success d-none">
+			<p class="mb-0">Thanks! If the email you entered has an account associated with it, we sent an email to that address.</p>
+		</div>
+		<form id="forgotForm">
+			<fieldset>
+				<legend>Forget your Password?</legend>
+				<p>Let us help.  Enter your email address, and we'll send you a link to reset your password.</p>
+				<div id="fgEmail" class="form-group">
+					<label for="loginUserEmail">Email Address</label>
+					<input required type="email" class="form-control" id="email" aria-describedby="email" placeholder="Enter your email address">
+					<div id="badEmail" class="invalid-feedback">No account is tied to that email address.</div>
+				</div>
+				<button type="submit" class="btn btn-primary">Submit</button>
+			</fieldset>
+			<br>
+		</form>
+	</div>
+</div>

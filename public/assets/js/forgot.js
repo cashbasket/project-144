@@ -1,36 +1,15 @@
-$('#btnSubmit').click(function(){
-    if(  validateForm() ){
-    }
-    else return false;
-});
-
-
-function validateForm() {
-    var email = $('#signupEmail').val();
-
-        $.ajax({
-            url:"api/user/register",   
-            data:{                  
-                email:email
-           
+$(document).ready(function() {
+    $('#forgotForm').on('submit', function(event) {
+        event.preventDefault();
+        $.ajax('/forgot', {
+            type: 'POST',
+            data: { 
+                email: $('#email').val().trim(),
             }
-                if(data > 0 ) {
-                    message = "This email is registered already!";
-                    messageDialog("Error", message, "error", 2);
-                    return false;                   
-                }.then(function(data) {
-                if (data.error) {
-                    if (data.error === 'email') {
-                        $('#fgSignupEmail').addClass('has-danger');
-                        $('#signupEmail').addClass('is-invalid');
-                    }
-                } else {
-                    location.href='/user/' + username;
-                }
-            });
-        }
+        });
+        $('#emailSent').removeClass('d-none');
+        $('#email').val('');
+        $('#forgotForm').hide();
+        window.scrollTo(0, 0);
     });
-
-    // if everything is right then return true so the submit function continue its execution
-    return true;
-}
+});

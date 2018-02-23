@@ -1,0 +1,26 @@
+<div class="row no-nav">
+	<div class="col-md-6 offset-md-3">
+		<h1 class="text-center">Project 144</h1><br><br>
+		<div id="resetConfirmed" class="alert alert-success d-none">
+			<p class="mb-0">Success! Your password was reset. <a href="/login">Click here to log in.</a></p>
+		</div>
+		<form id="resetForm">
+			<fieldset>
+				<legend>Password Reset</legend>
+				<p>Please fill out the form below to reset your password.</p>
+				<div id="fgNewPassword" class="form-group">
+					<label for="newPassword">Enter New Password</label>
+					<input required type="password" class="form-control" name="newPassword" id="newPassword" aria-describedby="username" placeholder="New Password">
+					<div id="badSNewPassword" class="invalid-feedback">Password must be between 8 and 16 characters.</div>
+				</div>
+				<div id="fgConfirmPassword" class="form-group">
+					<label for="confirmPassword">Confirm New Password</label>
+					<input required type="password" class="form-control" name="confirmPassword" id="confirmPassword" aria-describedby="username" placeholder="Confirm New Password">
+					<div id="badConfirmPassword" class="invalid-feedback">Passwords do not match.</div>
+				</div>
+				<button type="submit" class="btn btn-primary">Submit</button>
+			</fieldset>
+			<br>
+		</form>
+	</div>
+</div>
