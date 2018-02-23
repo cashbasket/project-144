@@ -148,7 +148,7 @@ router.put('/reset/:token', function(req, res) {
 	}).then(function(result) {
 		res.json(result);
 	}).catch(function(err) {
-		res.redirect(500, '/');
+		res.redirect('/');
 	});
 });
 
