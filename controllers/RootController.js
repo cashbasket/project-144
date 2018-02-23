@@ -8,7 +8,6 @@ var nodemailer = require('nodemailer');
 var url = require('url');
 var bcrypt = require('bcryptjs');
 var crypto = require('crypto');
-var gravatar = require('gravatar');
 
 // default route (if user is logged in, redirects them to their profile page)
 router.get('/', auth.validate, function(req, res) {
@@ -200,20 +199,12 @@ router.get('/user/:username', auth.validate, function(req, res) {
 			]
 		}]
 	}).then(function(userData) {
-		var avatar = gravatar.url(userData.email, {s: '200', r: 'pg', d: '404'}, true);
-		var gravatarUrl;
-		if (avatar === 'https://s.gravatar.com/avatar/c36cfd2d186891b0f2645d4b7a31169d?s=200&r=pg&d=404')
-			gravatarUrl = false;
-		else
-			gravatarUrl = avatar;
-
 		var userObj = {
 			user: userData,
 			extra: {
 				username: req.username,
 				loggedIn: loggedIn,
 				canEdit: canEdit,
-				gravatar: gravatarUrl
 			}
 		};
 		//res.json(userObj);
@@ -226,7 +217,6 @@ router.get('/user/:username', auth.validate, function(req, res) {
 // route for the user edit page
 router.get('/user/:username/edit', auth.validate, function(req, res) {
 	if (req.username && req.username === req.params.username) {
-		var gravatarUrl = gravatar.url(req.email, {s: '200', r: 'pg', d: '404'}, true);
 		models.User.findOne({
 			where: {
 				username: req.params.username
@@ -236,8 +226,7 @@ router.get('/user/:username/edit', auth.validate, function(req, res) {
 				var userObj = {
 					user: user.dataValues,
 					extra: {
-						loggedIn: req.username ? true : false,
-						gravatar: gravatarUrl
+						loggedIn: req.username ? true : false
 					}
 				};
 				res.render('user', userObj);
@@ -297,7 +286,10 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 				loggedIn: true
 			}
 		};
-		res.render('post', userObj);
+		if(user.username === req.username)
+			res.render('post', userObj);
+		else
+			res.redirect('/');
 	}).catch(function(err) {
 		res.json(err);
 	});
