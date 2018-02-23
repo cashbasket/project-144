@@ -1,0 +1,77 @@
+{{#if user}}
+<div id="result" class="alert alert-success d-none">
+	<p class="mb-0"><span id="resultMsg">Your post was created successfully.</span><br>
+	<a href="/">Return to Profile</a></p>
+</div>
+<form id="postForm">
+	<input type="hidden" id="userId" value="{{user.id}}">
+	{{#if user.Posts}}
+		{{#each user.Posts}}
+		<input type="hidden" id="postId" value="{{id}}">
+		<input type="hidden" id="albumId" value="{{AlbumId}}">
+		<input type="hidden" id="content" value="{{body}}">
+		{{/each}}
+	{{/if}}
+	<div class="row">
+		<div class="col-md-6 offset-md-3">
+			<h2>{{#if user.Posts}}Edit Your{{else}}Write a{{/if}} Post</h2>
+			<fieldset>
+				<div id="albumGroup" class="form-group">
+					{{#if user.Posts}}
+					<p>This is a post about:</p>
+					<div class="row">
+						{{#each user.Posts}}
+						<div class="col-md-3">
+							<img src="{{Album.album_art}}" class="profile-img img-fluid" />
+						</div>
+						<div class="col-md-9">
+							<h4 class="profile-title">{{Album.title}}</h4>
+							<h6>by {{Album.Artist.artist_name}}</h6>
+						</div>
+						{{/each}}
+					</div>
+					{{else}}
+					<label for="album">Select (or type) an album from your collection:</label>
+					<div class="ui-widget">
+						<select id="album">
+							{{#each user.Albums}}
+								<option value="{{id}}">{{Artist.artist_name}} &mdash; {{title}}</option>
+							{{/each}}
+						</select>
+					</div>
+					{{/if}}
+				</div>
+				<label for="postBody">{{#if user.Posts}}Make Your Updates:{{else}}Type something:{{/if}}</label>
+				<h4 class="post-warning red d-none">No blank posts allowed!</h4>
+				<div id="postBody"></div>
+				<div class="message-remaining float-right"><strong id="charsLeft">1000</strong> characters remaining</div>
+				<br>
+				<div class="clearfix"></div>
+				<div class="row">
+					<div class="col-md-6">
+						<label for="status">Set post visibility:</label>
+						<select id="status">
+							<option value="public">Public (everyone can see it)</option>
+							<option value="private" {{#if user.Posts}}{{#each user.Posts}}{{#ifEquals isPublic false}}selected{{/ifEquals}}{{/each}}{{/if}}>Private (only you can see it)</option>
+						</select>
+					</div>
+					<div class="col-md-6">
+						{{#if user.Posts}}
+						<div class="float-right delete-section">
+							<input type="checkbox" id="deletePost" value="yes"> PLEASE delete this post.
+						</div>
+						{{/if}}
+					</div>
+				</div>
+			</fieldset>
+		</div>
+	</div>
+	<br>
+	<div class="row">
+		<div class="col-md-12 text-center">
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</div>
+	</div>
+</form>
+{{/if}}
+<br><br><br>
