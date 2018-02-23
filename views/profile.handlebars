@@ -108,7 +108,11 @@
 									{{/if}}
 								{{/each}}
 							{{else}}
-								<h4>You have no posts yet. <a href="/user/{{user.username}}/post">You should write one.</a></h4>
+								{{#if ../extra/canEdit}}
+									<h4>You have no posts yet. <a href="/user/{{user.username}}/post">You should write one.</a></h4>
+								{{else}}
+									<h4>This user hasn't written any posts yet.</h4>
+								{{/if}}
 							{{/if}}
 						</div>
 						<div class="tab-pane fade {{#unless user.Posts}}show active{{/unless}}" id="tabCollection" role="tabpanel" aria-labelledby="home-tab">

@@ -286,7 +286,10 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 				loggedIn: true
 			}
 		};
-		res.render('post', userObj);
+		if(user.username === req.username)
+			res.render('post', userObj);
+		else
+			res.redirect('/');
 	}).catch(function(err) {
 		res.json(err);
 	});
