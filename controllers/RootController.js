@@ -22,7 +22,7 @@ router.get('/', auth.validate, function(req, res) {
 	}
 	//Otherwise, send them to the index page, which will let them sign in or register.
 	else {
-		res.render('index', { hideNav: true });
+		res.render('index', {layout: 'landingpage.handlebars'});
 	}
 });
 

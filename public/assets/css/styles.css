@@ -12,11 +12,6 @@ body {
 	flex: 1;
 }
 
-.homepage-container {
-	background-color: #f1f1f1;
-	padding: 20px;
-}
-
 .intro {
 	color: #000;
 }
@@ -36,6 +31,22 @@ nav {
 
 .site-content a {
 	text-decoration: underline;
+}
+
+/* LANDING PAGE STYLES */
+.landing-page {
+	background-image: url(/assets/img/landing-page-bg.jpg);
+}
+
+.landing-page-container {
+	background: rgba(255, 255, 255, 0.95);
+	margin: 0 auto;
+	padding: 20px;
+	max-width: 960px;
+}
+
+.landing-page-container h3 {
+	color: #f00;
 }
 
 /* ALBUM COLLECTION / ALBUM SEARCH STYLES */
@@ -144,6 +155,7 @@ footer {
 	padding: 10px 0;
 	text-align: center;
 }
+
 /* JQUERY COMBOBOX STUFF */
 .custom-combobox {
     position: relative;
