@@ -24,7 +24,7 @@ $(document).ready(function() {
 				for(var i = 0; i < data.user.Albums.length; i++) {
 					var album = data.user.Albums[i];					
 					// I hate this approach so much, but it's 1:30 in the morning and I can't think of a better way to do it right now.
-					if(i === 0 || (i > 3 && i % 4 === 0)) {
+					if(i === 0) {
 						albumHtml += '<div class="row">';
 					}
 					albumHtml += '<div class="col-md-3">';
@@ -42,8 +42,8 @@ $(document).ready(function() {
 					albumHtml += '</div>';
 					albumHtml += '</div>';
 
-					if (i === 3 || (i > 3 && i % 4 === 1) || i === data.user.Albums.length - 1) {
-						albumHtml += '</div><br>';
+					if (i === 3 || (i > 3 && i % 4 === 3) || i === data.user.Albums.length - 1) {
+						albumHtml += '</div><br><div class="row">';
 					}
 				}
 				$('#collection').html(albumHtml);
