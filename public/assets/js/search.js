@@ -1,18 +1,4 @@
 $(document).ready(function() {
-	if($('#type').val() === 'title') 
-		$('#query').attr('placeholder', 'e.g. "Number of the Beast"');
-	else
-		$('#query').attr('placeholder', 'e.g. "Iron Maiden"');
-	$('#type').on('change', function(event) {
-		if ($(this).val() === 'title') {
-			$('#searchTypeText').text('album title');
-			$('#query').attr('placeholder', 'e.g. "Number of the Beast"');
-		} else {
-			$('#searchTypeText').text('artist name');
-			$('#query').attr('placeholder', 'e.g. "Iron Maiden"');
-		}
-	});
-
 	$('.add-album').on('click', function(event){
 		var userId = $(this).data('id');
 		var albumId = $(this).data('album-id');

@@ -4,15 +4,8 @@
 
 <form method="post">
 	<div id="searchForm" class="form-row">
-		<div class="col-md-3">
-			<h6>Search by:</h6>
-			<select name="type" id="type" class="form-control">
-				<option value="title" {{#if extra.title}}selected{{/if}}>Album Title</option>
-				<option value="artist" {{#unless extra.title}}selected{{/unless}}>Artist Name</option>
-			</select>
-		</div>
-		<div class="col-md-7">
-			<h6>Enter an <span id="searchTypeText">album title</span>:</h6>
+		<div class="col-md-10">
+			<h6>Enter an album title:</h6>
 			<input required name="query" id="query" type="text" class="form-control" placeholder="">
 		</div>
 		<div class="col-md-2">
@@ -28,31 +21,59 @@
 <h4>{{#if extra.searched}}Search Results{{else}}Recently Added to Project 144{{/if}}</h4>
 <br>
 <div id="results">
-	{{#groupedEach 4 albums}}
-		<div class="row">
-			{{#each this}}
-			<div class="col-md-3">
-				<div class="album-container">
-					<img src="{{this.album_art}}" class="album-image img-fluid" />
-					<div class="album-overlay">
-						<div class="album-overlay-text">
-							<h5 class="white"><a href="/album/{{this.id}}">{{this.title}}</a></h5>
-							<p>by {{this.Artist.artist_name}}</p>
-							{{#if ../../extra.loggedIn}}
-								{{#unless this.Users}}
-									<p><a id="album-{{this.id}}" class="add-album" data-id="{{../../extra.userId}}" data-album-id="{{this.id}}"><i class="fa fa-plus"></i> Add to Collection</a></p>
-								{{else}}
-									<p><a href="/user/{{../../extra.username}}/post/?album={{this.id}}"><i class="fas fa-pencil-alt"></i> Write a Post</a></p>
-								{{/unless}}
-							{{/if}}
+	{{#if extra.searched}}
+		{{#groupedEach 4 albums}}
+			<div class="row">
+				{{#each this}}
+				<div class="col-md-3">
+					<div class="album-container">
+						<img src="{{this.thumb}}" class="album-image img-fluid" />
+						<div class="album-overlay">
+							<div class="album-overlay-text">
+								<h5 class="white"><a href="/album/{{this.id}}">{{this.albumName}}</a></h5>
+								<p>by {{this.artistName}}</p>
+								{{#if ../../extra.loggedIn}}
+									{{#unless this.Users}}
+										<p><a id="album-{{this.id}}" class="add-album" data-id="{{../../extra.userId}}" data-album-id="{{this.id}}"><i class="fa fa-plus"></i> Add to Collection</a></p>
+									{{else}}
+										<p><a href="/user/{{../../extra.username}}/post/?album={{this.id}}"><i class="fas fa-pencil-alt"></i> Write a Post</a></p>
+									{{/unless}}
+								{{/if}}
+							</div>
 						</div>
 					</div>
 				</div>
+				{{/each}}
 			</div>
-			{{/each}}
-		</div>
-		<br>
-	{{/groupedEach}}
+			<br>
+		{{/groupedEach}}
+	{{else}}
+		{{#groupedEach 4 albums}}
+			<div class="row">
+				{{#each this}}
+				<div class="col-md-3">
+					<div class="album-container">
+						<img src="{{this.album_art}}" class="album-image img-fluid" />
+						<div class="album-overlay">
+							<div class="album-overlay-text">
+								<h5 class="white"><a href="/album/{{this.id}}">{{this.title}}</a></h5>
+								<p>by {{this.Artist.artist_name}}</p>
+								{{#if ../../extra.loggedIn}}
+									{{#unless this.Users}}
+										<p><a id="album-{{this.id}}" class="add-album" data-id="{{../../extra.userId}}" data-album-id="{{this.id}}"><i class="fa fa-plus"></i> Add to Collection</a></p>
+									{{else}}
+										<p><a href="/user/{{../../extra.username}}/post/?album={{this.id}}"><i class="fas fa-pencil-alt"></i> Write a Post</a></p>
+									{{/unless}}
+								{{/if}}
+							</div>
+						</div>
+					</div>
+				</div>
+				{{/each}}
+			</div>
+			<br>
+		{{/groupedEach}}
+	{{/if}}
 </div>
 {{else}}
 	<h3>Your search returned no results.</h3>
