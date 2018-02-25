@@ -27,13 +27,13 @@ app.use(RootController);
 var ApiController = require('./controllers/ApiController');
 app.use('/api', ApiController);
 
-app.listen(PORT, function() {
-	console.log('Listening on port %s', PORT);
-});
-
-// To create the database tables automatically from the Sequelize models, uncomment the following code:
-// db.sequelize.sync().then(function() {
-// 	app.listen(PORT, function() {
-// 		console.log('Listening on port %s', PORT);
-// 	});
+// app.listen(PORT, function() {
+// 	console.log('Listening on port %s', PORT);
 // });
+
+//To create the database tables automatically from the Sequelize models, uncomment the following code:
+db.sequelize.sync().then(function() {
+	app.listen(PORT, function() {
+		console.log('Listening on port %s', PORT);
+	});
+});
