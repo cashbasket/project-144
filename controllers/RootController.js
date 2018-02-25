@@ -8,6 +8,10 @@ var nodemailer = require('nodemailer');
 var url = require('url');
 var bcrypt = require('bcryptjs');
 var crypto = require('crypto');
+var Discogs = require('disconnect').Client;
+var discogsDb = new Discogs({
+	consumerKey: process.env.DISCOGS_CONSUMER_KEY, 
+	consumerSecret: process.env.DISCOGS_CONSUMER_SECRET}).database();
 
 // default route (if user is logged in, redirects them to their profile page)
 router.get('/', auth.validate, function(req, res) {
@@ -398,72 +402,107 @@ router.post('/albums/search', auth.validate, function(req, res) {
 	if (req.username)
 		loggedIn = true;
 
-	var whereObj;
-	if (req.body.type === 'title') {
-		whereObj = {
-			$or: [
-				{ title : { $eq: req.body.query } },
-				{ title : { like: req.body.query + ' %' } },
-				{ title: { like: '% ' + req.body.query } },
-				{ title: { like: '% ' + req.body.query + ' %' } }
-			]
-		};
-	} else if (req.body.type === 'artist') {
-		whereObj = {
-			$or: [
-				{ '$Artist.artist_name$' : { $eq: req.body.query } },
-				{ '$Artist.artist_name$' : { like: req.body.query + ' %' } },
-				{ '$Artist.artist_name$': { like: '% ' + req.body.query } },
-				{ '$Artist.artist_name$': { like: '% ' + req.body.query + ' %' } }
-			]
-		};
-	}
-
-	models.Album.findAll({
-		where: whereObj,
-		include: [{
-			model: models.Artist,
-			required: true
-		}, {
-			model: models.Genre,
-			required: true
-		}, {
-			model: models.Label,
-			required: true	
-		}, {
-			model: models.User,
-			required: false,
-			where: {
-				id: req.userId
+	// var whereObj;
+	// if (req.body.type === 'title') {
+	// 	whereObj = {
+	// 		$or: [
+	// 			{ title : { $eq: req.body.query } },
+	// 			{ title : { like: req.body.query + ' %' } },
+	// 			{ title: { like: '% ' + req.body.query } },
+	// 			{ title: { like: '% ' + req.body.query + ' %' } }
+	// 		]
+	// 	};
+	// } else if (req.body.type === 'artist') {
+	// 	whereObj = {
+	// 		$or: [
+	// 			{ '$Artist.artist_name$' : { $eq: req.body.query } },
+	// 			{ '$Artist.artist_name$' : { like: req.body.query + ' %' } },
+	// 			{ '$Artist.artist_name$': { like: '% ' + req.body.query } },
+	// 			{ '$Artist.artist_name$': { like: '% ' + req.body.query + ' %' } }
+	// 		]
+	// 	};
+	// }
+	discogsDb.search(req.body.query, { 
+		type: 'release',
+		release_title: req.body.query,
+		format: 'album'
+	}, function(err, data) {
+		var results = data.results;
+		var titles = [];
+		var filtered = [];
+		for (var i = 0; i < results.length; i++) {
+			var titleSplit = results[i].title.split(' - ');
+			var artist = titleSplit[0];
+			var album = titleSplit[1];
+			var title = results[i].title;
+			results[i].albumName = album;
+			results[i].artistName = artist;
+			if(!titles.includes(title)) {
+				filtered.push(results[i]);
+				titles.push(title);
 			}
-		}, {
-			model: models.Post,
-			required: false,
-			include: [{
-				model: models.User,
-				required: true
-			}]
-		}],
-		limit: 100,
-		subQuery: false,
-		order: [
-			['createdAt', 'DESC']
-		]
-	}).then(function(albumData) {
-		var albumsObj = {
-			albums: albumData,
+		}
+		var resultObj = {
+			albums: filtered,
 			extra: {
 				userId: req.userId,
 				username: req.username,
+				title: true,
 				loggedIn: loggedIn,
-				title: req.body.type === 'title' ? true : false,
 				searched: true
 			}
 		};
-		res.render('search', albumsObj);
-	}).catch(function(err) {
-		res.json(err);
+		console.log(resultObj);
+		//res.render('search', resultObj);
+		res.json(data);
 	});
+		
+	
+	// models.Album.findAll({
+	// 	where: whereObj,
+	// 	include: [{
+	// 		model: models.Artist,
+	// 		required: true
+	// 	}, {
+	// 		model: models.Genre,
+	// 		required: true
+	// 	}, {
+	// 		model: models.Label,
+	// 		required: true	
+	// 	}, {
+	// 		model: models.User,
+	// 		required: false,
+	// 		where: {
+	// 			id: req.userId
+	// 		}
+	// 	}, {
+	// 		model: models.Post,
+	// 		required: false,
+	// 		include: [{
+	// 			model: models.User,
+	// 			required: true
+	// 		}]
+	// 	}],
+	// 	limit: 100,
+	// 	subQuery: false,
+	// 	order: [
+	// 		['createdAt', 'DESC']
+	// 	]
+	// }).then(function(albumData) {
+	// 	var albumsObj = {
+	// 		albums: albumData,
+	// 		extra: {
+	// 			userId: req.userId,
+	// 			username: req.username,
+	// 			loggedIn: loggedIn,
+	// 			title: req.body.type === 'title' ? true : false,
+	// 			searched: true
+	// 		}
+	// 	};
+	// 	res.render('search', albumsObj);
+	// }).catch(function(err) {
+	// 	res.json(err);
+	// });
 });
 
 module.exports = router;
