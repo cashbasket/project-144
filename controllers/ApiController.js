@@ -95,16 +95,107 @@ router.put('/user/:username/edit', auth.validate, function(req, res) {
 router.post('/album/:userId/:albumId', auth.validate, function(req, res) {
 	if(req.userId !== req.params.userId)
 		res.redirect('/login');
-	models.UserAlbum.create({
-		AlbumId: req.params.albumId,
-		UserId: req.params.userId
-	}).then(function(result) {
-		var resultObj = {
-			username: req.username
-		};
-		res.json(resultObj);
-	}).catch(function(err) {
-		res.json(err);
+		
+	var artistId;
+	var labelIds = [];
+	var styleIds = [];
+	var genreIds = [];
+
+	models.sequelize.transaction(function (t) {
+		return models.Artist.findOrCreate({
+			where: {
+				artist_name: req.body.artist
+			},
+			defaults: {
+				artist_name: req.body.artist
+			}
+		}).then(function(artist) {
+			artistId = artist.id;
+			var labelPromises = [];
+			var labels = ['Prosthetic Records', 'Other Records', 'Some More Records'];
+			for (var i = 0; i < labels.length; i++) {
+				var labelPromise =  models.Label.findOrCreate({
+					where: {
+						label_name: labels[i]
+					},
+					defaults: {
+						label_name: labels[i]
+					},
+					transaction: t
+				});
+				labelPromises.push(labelPromise);
+			}
+			return Promise.all(labelPromises).then(function(labels) {
+				for (var i = 0; i < labels.length; i++) {
+					labelIds.push(labels[i][0].id);
+				}
+				var stylePromises = [];
+				var styles = ['Hardcore', 'Death Metal', 'Awesome'];
+				for (var i = 0; i < stylePromises.length; i++) {
+					var stylePromise = models.Style.findOrCreate({
+						where: {
+							style_name: styles[i]
+						},
+						defaults: {
+							style_name: styles[i]
+						},
+						transaction: t
+					});
+					stylePromises.push(stylePromise);
+				}
+				return Promise.all(stylePromises).then(function(styles) {
+					for (var i = 0; i < styles.length; i++) {
+						styleIds.push(styles[i][0].id);
+					}
+					var genrePromises = [];
+					var genres = ['Rock', 'Electronic'];
+					for (var i = 0; i < genres.length; i++) {
+						var genrePromise = models.Genre.findOrCreate({
+							where: {
+								genre_name: genre
+							},
+							defaults: {
+								genre_name: genres[i]
+							},
+							transaction: t
+						});
+						genrePromises.push(genrePromise);
+					}
+					return Promise.all(genrePromises).then(function(genres) {
+						for (var i = 0; i < genres.length; i++) {
+							genreIds.push(genres[i][0].id);
+						}
+						return models.Album.findOrCreate({
+							where: {
+								title: req.body.title,
+								album_art: req.body.album_art,
+								release_year: req.body.release_year,
+								added_by: req.body.added_by,
+								ArtistId: artistId
+							}
+						}).then(function(album) {
+							// YOU LEFT OFF HERE!!!!!
+						});
+					});
+				});
+			});
+		});		
+		// for (var i = 0; i < members.length; i++) {
+		// 	var newPromise = models.User.create({'firstname':members[i], 'email':members[i], 'pending':true}, {transaction: t});
+		// 	promises.push(newPromise);
+		// }
+		// return Promise.all(promises).then(function(users) {
+		// 	var userPromises = [];
+		// 	for (var i = 0; i < users.length; i++) {
+		// 		userPromises.push(users[i].addInvitations([group], {transaction: t}));
+		// 	}
+		// 	return Promise.all(userPromises);
+		// });
+	}).then(function (result) {
+		console.log('YAY');
+	}).catch(function (err) {
+		console.log('NO!!!');
+		return next(err);
 	});
 });
 
