@@ -9,13 +9,13 @@ $(document).ready(function() {
 		}
 	});
 
-	$('#query').on('keyup', function(event){
+	$('#collectionQuery').on('keyup', function(event){
 		event.preventDefault();
 		$.ajax('/api/user/' + $('.profile-title').text() + '/search', {
 			type: 'POST',
 			data: { 
 				type: $('#type').val().trim(),
-				query: $('#query').val().trim()
+				query: $('#collectionQuery').val().trim()
 			}
 		}).then(function(data) {
 			if(data) {
@@ -48,7 +48,6 @@ $(document).ready(function() {
 				}
 				$('#collection').html(albumHtml);
 			}
-			
 		});
 	});
 });
