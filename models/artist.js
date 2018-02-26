@@ -7,7 +7,7 @@ module.exports = function(sequelize, DataTypes) {
 	});
 
 	Artist.associate = function(models) {
-		models.Artist.hasMany(models.Album);
+		models.Artist.belongsToMany(models.Album, { through: models.AlbumArtist });
 	};
 
 	return Artist;

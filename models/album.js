@@ -6,14 +6,11 @@ module.exports = function(sequelize, DataTypes) {
 		release_year: { type: DataTypes.INTEGER, allowNull: false },
 		added_by: { type: DataTypes.INTEGER, allowNull: false }
 	}, {
-		indexes: [{
-			unique: true,
-			fields: ['title', 'ArtistId']
-		}]
+		freezeTableName: true
 	});
 
 	Album.associate = function(models) {
-		models.Album.belongsTo(models.Artist);
+		models.Album.belongsToMany(models.Artist, { through: models.AlbumArtist });
 		models.Album.belongsToMany(models.Genre, { through: models.AlbumGenre });
 		models.Album.belongsToMany(models.Label, { through: models.AlbumLabel });
 		models.Album.belongsToMany(models.User, { through: models.UserAlbum });
