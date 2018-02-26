@@ -67,7 +67,7 @@
 												</div>
 												<div class="col-md-10">
 													<div class="d-flex w-100 justify-content-between">
-														<h5 class="white" style="margin:0">RE: "{{Album.title}}" by {{Album.Artist.artist_name}}</h5>
+														<h5 class="white" style="margin:0">RE: "{{Album.title}}" by {{#each this.Album.Artists}}{{this.artist_name}}{{#unless @last}}, {{/unless}}{{/each}}</h5>
 														{{#if ../extra.canEdit}}
 															<a class="edit-post" href="/user/{{../user.username}}/post/?postId={{id}}"><i class="far fa-edit"></i></a>
 														{{/if}}
@@ -93,7 +93,7 @@
 														</div>
 														<div class="col-md-10">
 															<div class="d-flex w-100 justify-content-between">
-																<h5 class="white" style="margin:0">(PRIVATE) RE: "{{Album.title}}" by {{Album.Artist.artist_name}}</h5>
+																<h5 class="white" style="margin:0">(PRIVATE) RE: "{{Album.title}}" by {{#each this.Artists}}{{this.artist_name}}{{#unless @last}}, {{/unless}}{{/each}}</h5>
 																{{#if ../extra.canEdit}}
 																	<a class="edit-post" href="/user/{{../user.username}}/post/?postId={{id}}"><i class="far fa-edit"></i></a>
 																{{/if}}
@@ -142,7 +142,7 @@
 											<div class="album-overlay">
 												<div class="album-overlay-text">
 													<h5 class="white">{{#if ../../extra.loggedIn}}<a href="/album/{{this.id}}">{{this.title}}</a>{{else}}{{this.title}}{{/if}}</h5>
-													<p>by {{this.Artist.artist_name}}</p>
+													<p>by {{#each this.Artists}}{{this.artist_name}}{{#unless @last}}, {{/unless}}{{/each}}</p>
 													{{#if ../../extra.canEdit}}
 													<p>
 														<a href="/user/{{../../user.username}}/post/?albumId={{id}}"><i class="fas fa-pencil-alt"></i> Write a Post</a>

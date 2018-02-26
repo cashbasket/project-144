@@ -26,7 +26,11 @@
 						</div>
 						<div class="col-md-9">
 							<h4 class="profile-title">{{Album.title}}</h4>
-							<h6>by {{Album.Artist.artist_name}}</h6>
+							<h6>by 
+								{{#each this.Album.Artists}}
+									{{this.artist_name}}{{#unless @last}}, {{/unless}}
+								{{/each}}
+							</h6>
 						</div>
 						{{/each}}
 					</div>
@@ -35,7 +39,7 @@
 					<div class="ui-widget">
 						<select id="album">
 							{{#each user.Albums}}
-								<option value="{{id}}">{{Artist.artist_name}} &mdash; {{title}}</option>
+								<option value="{{id}}">{{#each this.Artists}}{{this.artist_name}}{{#unless @last}}, {{/unless}}{{/each}} &mdash; {{title}}</option>
 							{{/each}}
 						</select>
 					</div>
