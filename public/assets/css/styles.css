@@ -97,8 +97,8 @@ nav {
 	color: #fff;
 }
 
-.add-album {
-	text-decoration: underline !important;
+#addButton {
+	color: #fff;
 	cursor: pointer;
 }
 
