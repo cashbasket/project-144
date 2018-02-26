@@ -251,7 +251,7 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 		},
 		include: [{
 			model: models.Album,
-			required: false,
+			required: true,
 			include: [{
 				model: models.Artist,
 				required: true,
@@ -260,6 +260,9 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 				required: true
 			}, {
 				model: models.Genre,
+				required: true
+			}, {
+				model: models.Style,
 				required: true
 			}]
 		}, {
@@ -280,6 +283,9 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 				}, {
 					model: models.Genre,
 					required: false
+				}, {
+					model: models.Style,
+					required: false
 				}]
 			}]
 		}]
@@ -291,6 +297,7 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 			}
 		};
 		if(user.username === req.username)
+			//res.json(userObj);
 			res.render('post', userObj);
 		else
 			res.redirect('/');
@@ -310,13 +317,28 @@ router.get('/album/:id', auth.validate, function(req, res) {
 		},
 		include: [{
 			model: models.Artist,
+			through: {
+				model: models.AlbumArtist
+			},
 			required: true
 		}, {
 			model: models.Genre,
+			through: {
+				model: models.AlbumGenre
+			},
 			required: true
 		}, {
 			model: models.Label,
+			through: {
+				model: models.AlbumLabel
+			},
 			required: true	
+		}, {
+			model: models.Style,
+			through: {
+				model: models.AlbumStyle
+			},
+			required: true
 		}, {
 			model: models.Post,
 			where: {
@@ -327,19 +349,55 @@ router.get('/album/:id', auth.validate, function(req, res) {
 				model: models.User,
 				required: true
 			}]
+		}, {
+			model: models.User,
+			through: models.UserAlbum,
+			required: false,
+			where: {
+				id: req.userId
+			}
 		}]
 	}).then(function(albumData) {
-		var albumObj = {
-			album: albumData,
-			extra: {
-				userId: req.userId,
-				username: req.username,
-				loggedIn: loggedIn,
-				title: true
+		console.log(albumData);
+		if (albumData) {
+			var owned = false;
+			if (albumData.Users) {
+				owned = true;
 			}
-		};
-		//res.json(albumObj);
-		res.render('album', albumObj);
+			var albumObj = {
+				album: albumData,
+				extra: {
+					userId: req.userId,
+					username: req.username,
+					title: true,
+					loggedIn: loggedIn,
+					inDb: true,
+					owned: owned
+				}
+			};
+			//res.json(albumObj);
+			res.render('album', albumObj);
+		} else {
+			// not in our database, so call Discogs!
+			discogsDb.getMaster(req.params.id, function(err, masterData) {
+				var urlSplit = masterData.main_release_url.split('/');
+				var mainReleaseId = urlSplit[urlSplit.length - 1];
+				discogsDb.getRelease(mainReleaseId, function(err, releaseData) {
+					var albumObj = {
+						album: releaseData,
+						extra: {
+							userId: req.userId,
+							username: req.username,
+							title: true,
+							loggedIn: loggedIn,
+							inDb: false
+						}
+					};
+					//res.json(albumObj);
+					res.render('album', albumObj);
+				});
+			});
+		}
 	}).catch(function(err) {
 		res.json(err);
 	});
@@ -386,7 +444,7 @@ router.get('/albums/search', auth.validate, function(req, res) {
 				userId: req.userId,
 				username: req.username,
 				loggedIn: loggedIn,
-				title: true
+				album: true
 			}
 		};
 		//res.json(albumsObj);
@@ -422,11 +480,19 @@ router.post('/albums/search', auth.validate, function(req, res) {
 	// 		]
 	// 	};
 	// }
-	discogsDb.search(req.body.query, { 
-		type: 'release',
-		release_title: req.body.query,
-		format: 'album'
-	}, function(err, data) {
+
+	var searchParams = {
+		type: 'master'
+	};
+
+	if (req.body.type === 'artist') {
+		searchParams.artist = req.body.query;
+		searchParams.per_page = 500;
+	} else {
+		searchParams.release_title = req.body.query;
+	}
+
+	discogsDb.search(req.body.query, searchParams, function(err, data) {
 		var results = data.results;
 		var titles = [];
 		var filtered = [];
@@ -449,12 +515,12 @@ router.post('/albums/search', auth.validate, function(req, res) {
 				username: req.username,
 				title: true,
 				loggedIn: loggedIn,
-				searched: true
+				searched: true,
+				album: req.body.type === 'album' ? true : false
 			}
 		};
-		console.log(resultObj);
-		//res.render('search', resultObj);
-		res.json(data);
+		res.render('search', resultObj);
+		//res.json(resultObj);
 	});
 		
 	

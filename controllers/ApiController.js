@@ -91,28 +91,38 @@ router.put('/user/:username/edit', auth.validate, function(req, res) {
 	});
 });
 
-// adds an album to the current user's collection
+// adds an album to the user's collection (and the database, if needed!)
 router.post('/album/:userId/:albumId', auth.validate, function(req, res) {
 	if(req.userId !== req.params.userId)
 		res.redirect('/login');
 		
-	var artistId;
-	var labelIds = [];
-	var styleIds = [];
-	var genreIds = [];
+	var albumId;
+	var artistIds = [], 
+		labelIds = [], 
+		styleIds = [], 
+		genreIds = [];
 
 	models.sequelize.transaction(function (t) {
-		return models.Artist.findOrCreate({
-			where: {
-				artist_name: req.body.artist
-			},
-			defaults: {
-				artist_name: req.body.artist
+		var artistPromises = [];
+		var artists = req.body.artists;
+		for (var i = 0; i < artists.length; i++) {
+			var artistPromise = models.Artist.findOrCreate({
+				where: {
+					artist_name: artists[i]
+				},
+				default: {
+					artist_name: artists[i]
+				},
+				transaction: t
+			});
+			artistPromises.push(artistPromise);
+		}
+		return Promise.all(artistPromises).then(function(artists) {
+			for (var i = 0; i < artists.length; i++) {
+				artistIds.push(artists[i][0].id);
 			}
-		}).then(function(artist) {
-			artistId = artist.id;
 			var labelPromises = [];
-			var labels = ['Prosthetic Records', 'Other Records', 'Some More Records'];
+			var labels = req.body.labels;
 			for (var i = 0; i < labels.length; i++) {
 				var labelPromise =  models.Label.findOrCreate({
 					where: {
@@ -130,8 +140,9 @@ router.post('/album/:userId/:albumId', auth.validate, function(req, res) {
 					labelIds.push(labels[i][0].id);
 				}
 				var stylePromises = [];
-				var styles = ['Hardcore', 'Death Metal', 'Awesome'];
-				for (var i = 0; i < stylePromises.length; i++) {
+				var styles = req.body.styles;
+				console.log(styles);
+				for (var i = 0; i < styles.length; i++) {
 					var stylePromise = models.Style.findOrCreate({
 						where: {
 							style_name: styles[i]
@@ -148,11 +159,11 @@ router.post('/album/:userId/:albumId', auth.validate, function(req, res) {
 						styleIds.push(styles[i][0].id);
 					}
 					var genrePromises = [];
-					var genres = ['Rock', 'Electronic'];
+					var genres = req.body.genres;
 					for (var i = 0; i < genres.length; i++) {
 						var genrePromise = models.Genre.findOrCreate({
 							where: {
-								genre_name: genre
+								genre_name: genres[i]
 							},
 							defaults: {
 								genre_name: genres[i]
@@ -167,35 +178,107 @@ router.post('/album/:userId/:albumId', auth.validate, function(req, res) {
 						}
 						return models.Album.findOrCreate({
 							where: {
+								id: req.params.albumId
+							},
+							defaults: {
+								id: req.params.albumId,
 								title: req.body.title,
 								album_art: req.body.album_art,
-								release_year: req.body.release_year,
-								added_by: req.body.added_by,
-								ArtistId: artistId
-							}
+								release_year: req.body.year,
+								added_by: req.params.userId
+							},
+							transaction: t
 						}).then(function(album) {
-							// YOU LEFT OFF HERE!!!!!
+							albumId = album[0].id;
+							return models.UserAlbum.findOrCreate({
+								where: {
+									UserId: req.params.userId,
+									AlbumId: albumId
+								},
+								defaults: {
+									UserId: req.params.userId,
+									AlbumId: albumId
+								},
+								transaction: t
+							});
+						}).then(function(result) {
+							var albumGenrePromises = [];
+							for (var i = 0; i < genreIds.length; i++) {
+								var albumGenrePromise = models.AlbumGenre.findOrCreate({
+									where: {
+										AlbumId: albumId,
+										GenreId: genreIds[i]
+									},
+									defaults: {
+										AlbumId: albumId,
+										GenreId: genreIds[i]
+									},
+									transaction: t
+								});
+								albumGenrePromises.push(albumGenrePromise);
+							}
+							return Promise.all(albumGenrePromises).then(function(albumGenres) {
+								var albumStylePromises = [];
+								for (var i = 0; i < styleIds.length; i++) {
+									var albumStylePromise = models.AlbumStyle.findOrCreate({
+										where: {
+											AlbumId: albumId,
+											StyleId: styleIds[i]
+										},
+										defaults: {
+											AlbumId: albumId,
+											StyleId: styleIds[i]
+										},
+										transaction: t
+									});
+									albumStylePromises.push(albumStylePromise);
+								}
+								return Promise.all(albumStylePromises).then(function(albumStyles) {
+									console.log(albumStyles);
+									var albumArtistPromises = [];
+									for (var i = 0; i < artistIds.length; i++) {
+										var albumArtistPromise = models.AlbumArtist.findOrCreate({
+											where: {
+												AlbumId: albumId,
+												ArtistId: artistIds[i]
+											},
+											defaults: {
+												AlbumId: albumId,
+												ArtistId: artistIds[i]
+											},
+											transaction: t
+										});
+										albumArtistPromises.push(albumArtistPromise);
+									}
+									return Promise.all(albumArtistPromises).then(function(albumArtists) {
+										var albumLabelPromises = [];
+										for (var i = 0; i < labelIds.length; i++) {
+											var albumLabelPromise = models.AlbumLabel.findOrCreate({
+												where: {
+													AlbumId: albumId,
+													LabelId: labelIds[i]
+												},
+												defaults: {
+													AlbumId: albumId,
+													LabelId: labelIds[i]
+												},
+												transaction: t
+											});
+											albumLabelPromises.push(albumLabelPromise);
+										}
+										return Promise.all(albumLabelPromises);
+									});
+								});
+							});
 						});
 					});
 				});
 			});
 		});		
-		// for (var i = 0; i < members.length; i++) {
-		// 	var newPromise = models.User.create({'firstname':members[i], 'email':members[i], 'pending':true}, {transaction: t});
-		// 	promises.push(newPromise);
-		// }
-		// return Promise.all(promises).then(function(users) {
-		// 	var userPromises = [];
-		// 	for (var i = 0; i < users.length; i++) {
-		// 		userPromises.push(users[i].addInvitations([group], {transaction: t}));
-		// 	}
-		// 	return Promise.all(userPromises);
-		// });
 	}).then(function (result) {
-		console.log('YAY');
+		res.json(result);
 	}).catch(function (err) {
-		console.log('NO!!!');
-		return next(err);
+		res.json(err);
 	});
 });
 
