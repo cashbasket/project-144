@@ -118,16 +118,9 @@
 						<div class="tab-pane fade {{#unless user.Posts}}show active{{/unless}}" id="tabCollection" role="tabpanel" aria-labelledby="home-tab">
 							<form id="searchCollection" method="post">
 								<div class="form-row">
-									<div class="col-md-3">
-										<h6>Filter by:</h6>
-										<select name="type" id="type" class="form-control">
-											<option value="title">Album Title</option>
-											<option value="artist">Artist Name</option>
-										</select>
-									</div>
-									<div class="col-md-9">
-										<h6>Enter an <span id="searchTypeText">album title</span>:</h6>
-										<input required name="collectionQuery" id="query" type="text" class="form-control" placeholder="">
+									<div class="col-md-12">
+										<h6>Filter Collection:</h6>
+										<input required name="collectionQuery" id="collectionQuery" type="text" class="form-control" placeholder="Type an artist or album name">
 									</div>
 								</div>
 							</form>

@@ -291,19 +291,6 @@ router.post('/user/:username/search', auth.validate, function(req, res) {
 		canEdit = true;
 	if (req.username)
 		loggedIn = true;
-	if (req.body.type === 'title') {
-		whereObj = {
-			$or: [
-				{ title : { like: '%' + req.body.query + '%' } },
-			]
-		};
-	} else if (req.body.type === 'artist') {
-		whereObj = {
-			$or: [
-				{ '$Albums.Artist.artist_name$' : { $like: '%' +  req.body.query + '%' } }
-			]
-		};
-	}
 
 	models.User.findOne({
 		where: {
@@ -311,7 +298,12 @@ router.post('/user/:username/search', auth.validate, function(req, res) {
 		},
 		include: [{
 			model: models.Album,
-			where: whereObj,
+			where: {
+				$or: [
+					{ title : { like: '%' + req.body.query + '%' } },
+					{ '$Albums.Artists.artist_name$' : { $like: '%' + req.body.query + '%' } }
+				]
+			},
 			required: false,
 			include: [{
 				model: models.Artist,
@@ -321,6 +313,9 @@ router.post('/user/:username/search', auth.validate, function(req, res) {
 				required: true
 			}, {
 				model: models.Genre,
+				required: true
+			}, {
+				model: models.Style,
 				required: true
 			}]
 		}, {
