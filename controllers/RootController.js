@@ -419,18 +419,8 @@ router.get('/albums/search', auth.validate, function(req, res) {
 			model: models.Label,
 			required: true	
 		}, {
-			model: models.User,
-			required: false,
-			where: {
-				id: req.userId
-			}
-		}, {
-			model: models.Post,
-			required: false,
-			include: [{
-				model: models.User,
-				required: true
-			}]
+			model: models.Style,
+			required: true
 		}],
 		limit: 100,
 		subQuery: false,

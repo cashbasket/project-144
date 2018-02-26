@@ -63,16 +63,12 @@
 						<img src="{{this.album_art}}" class="album-image img-fluid" />
 						<div class="album-overlay">
 							<div class="album-overlay-text">
-								<h5 class="white"><a href="/album/{{this.id}}">{{this.title}}</a></h5>
-								<p>by {{this.Artist.artist_name}}</p>
 								{{#if ../../extra.loggedIn}}
-									{{#if ../../extra.loggedIn}}
-										<h5 class="white"><a href="/album/{{this.id}}"></a>{{this.albumName}}</a></h5>
-									{{else}}
-										<h5 class="white">{{this.albumName}}</h5>
-									{{/if}}
-									<p>by {{this.artistName}}</p>
+									<h5 class="white"><a href="/album/{{this.id}}">{{this.title}}</a></h5>
+								{{else}}
+									<h5 class="white">{{this.title}}</h5>
 								{{/if}}
+								<p>by {{#each this.Artists}}{{this.artist_name}}{{#unless @last}}, {{/unless}}{{/each}}</p>
 							</div>
 						</div>
 					</div>
