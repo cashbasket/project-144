@@ -12,7 +12,6 @@ $(document).ready(function() {$('img.gravatar-img').each(function(i, el) {
 	});
 
 	$('#signupForm').on('submit', function(event) {
-		event.preventDefault();
 		$('.form-group').removeClass('has-danger');
 		$('.form-control').removeClass('is-invalid');
 
@@ -31,73 +30,49 @@ $(document).ready(function() {$('img.gravatar-img').each(function(i, el) {
 				'<li>not begin or end with an underscore or hyphen</li>' + 
 				'<li>not have more than one underscore or hyphen in a row</li>' +
 			'</ul>');
-			errors = true;
+			return false;
 		}
 		if (password.length < 8 || password.length > 16) {
 			$('#fgSignupPassword').addClass('has-danger');
 			$('#signupPassword').addClass('is-invalid');
-			errors = true;
+			return false;
 		} 
 
-		if (!errors) {
-			$.ajax('/api/user/register', {
-				type: 'POST',
-				data: { 
-					email: email,
-					username: username,
-					password: password
-				}
-			}).then(function(data) {
-				if (data.error) {
-					if (data.error === 'username') {
-						$('#fgSignupUsername').addClass('has-danger');
-						$('#signupUsername').addClass('is-invalid');
-						$('#badSignupUsername').text('That username is already taken');
-					} else if (data.error === 'email') {
-						$('#fgSignupEmail').addClass('has-danger');
-						$('#signupEmail').addClass('is-invalid');
-					}
-				} else {
-					location.href='/user/' + username;
-				}
-			});
-		}
+		return true;
 	});
 
-	$('#loginForm').on('submit', function(event) {
+	/*$('#loginForm').on('submit', function(event) {
 		event.preventDefault();
 		$('.form-group').removeClass('has-danger');
 		$('.form-control').removeClass('is-invalid');
 
-		var login = $('#loginUser').val().trim();
-		var password = $('#loginPassword').val().trim();
-
+		var email = $('#email').val().trim();
+		var password = $('#password').val().trim();
+		var data = {
+			email: email,
+			password: password
+		};
 		$.ajax('/login', {
 			type: 'POST',
-			data: { 
-				login: login,
-				password: password
-			}
+			contentType: 'application/json; charset=utf-8',
+			dataType: 'json',
+			data: JSON.stringify(data)
 		}).then(function(data) {
-			if (data.error) {
-				if (data.error === 'no such user') {
-					$('#fgLoginUser').addClass('has-danger');
-					$('#loginUser').addClass('is-invalid');
-				} else if (data.error === 'bad password') {
-					$('#fgLoginPassword').addClass('has-danger');
-					$('#loginPassword').addClass('is-invalid');
-				}
+			console.log('what');
+			if(!data) {
+				$('#message').removeClass('d-none')
+					.text(data.message);
 			} else {
 				location.href='/user/' + data.username;
 			}
 		});
-	});
+	});*/
 	
 	$('#logout').on('click', function(event) {
 		$.ajax('/logout', {
-			type: 'POST'
+			type: 'GET'
 		}).then(function(result) {
-			location.href='/';
+			location.href='/login';
 		});
 	});
 });
