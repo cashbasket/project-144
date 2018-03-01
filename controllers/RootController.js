@@ -1,24 +1,40 @@
 var express = require('express');
 var router = express.Router();
 var models = require('../models');
-var Sequelize = require('sequelize');
-var auth = require('../lib/helpers');
-var querystring = require('querystring');
+var RateLimit = require('express-rate-limit');
 var nodemailer = require('nodemailer');
-var url = require('url');
-var bcrypt = require('bcryptjs');
 var crypto = require('crypto');
+var passport = require('../config/passport');
+var passportAuth  = require('../lib/passportAuth');
 var Discogs = require('disconnect').Client;
 var discogsDb = new Discogs({
 	consumerKey: process.env.DISCOGS_CONSUMER_KEY, 
 	consumerSecret: process.env.DISCOGS_CONSUMER_SECRET}).database();
 
+router.use(passport.initialize());
+router.use(passport.session());
+
+var loginLimiter = new RateLimit({
+	windowMs: 15*60*1000, // 15 minutes
+	max: 10,
+	delayMs: 0, // disabled
+	message: 'Too many logins from this IP address. Please try again in 15 minutes.'
+});
+
+var createAccountLimiter = new RateLimit({
+	windowMs: 60*60*1000,
+	delayAfter: 1,
+	delayMs: 3*1000,
+	max: 5,
+	message: 'Too many accounts created from this IP address. Please try again after an hour'
+});
+
 // default route (if user is logged in, redirects them to their profile page)
-router.get('/', auth.validate, function(req, res) {
-	if (req.userId) {
+router.get('/', function(req, res) {
+	if (req.user) {
 		models.User.findOne({
 			where: {
-				id: req.userId
+				username: req.user.username
 			}
 		}).then(function (user) {
 			res.redirect('/user/' + user.username);
@@ -30,21 +46,52 @@ router.get('/', auth.validate, function(req, res) {
 	}
 });
 
-router.get('/login', auth.validate, function(req, res) {
-	if (!req.username)
+router.post('/', createAccountLimiter, function(req, res, next) {
+	passport.authenticate('local-signup', function(err, user, info) {
+		if (err) {
+			return next(err); // will generate a 500 error
+		}
+		if (!user) {
+			return res.status(409).render('index', {layout: 'landingpage.handlebars', message: 'The email address or username you selected is already in use.'});
+		}
+		req.login(user, function(err){
+			if(err){
+				console.error(err);
+				return next(err);
+			}
+			return res.redirect('/user/' + req.user.username);
+		});
+	})(req, res, next);
+});
+
+router.get('/login', function(req, res) {
+	if (!req.user)
 		res.render('login', { hideNav: true });
 	else
-		res.redirect('/user/' + req.username);
+		res.redirect('/user/' + req.user.username);
 });
 
-router.post('/login', function(req, res) {
-	auth.handler(req, res, 'login');
+router.post('/login', loginLimiter, function(req, res, next) {
+	passport.authenticate('local-login', function(err, user, info) {
+		if (err) {
+			return next(err);
+		}
+		if (!user) {
+			return res.status(409).render('login', { message: 'Invalid email address or password.' });
+		}
+		req.login(user, function(err){
+			if(err){
+				console.error(err);
+				return next(err);
+			}
+			return res.redirect('/user/' + req.user.username);
+		});
+	})(req, res, next);
 });
 
-router.post('/logout', function(req, res) {
-	auth.logout(req, res, function() {
-		res.redirect(200, '/');
-	});
+router.get('/logout', function(req, res) {
+	req.logout();
+	res.redirect('/login');
 });
 
 // HELP I FORGOT MY PASSWORD
@@ -156,14 +203,15 @@ router.put('/reset/:token', function(req, res) {
 });
 
 // gets all data for current user, including user info, albums owned and posts made
-router.get('/user/:username', auth.validate, function(req, res) {
+router.get('/user/:username', function(req, res) {
 	var canEdit = false;
 	var loggedIn = false;
 
-	if (req.username)
+	if (req.user) {
 		loggedIn = true;
-	if (req.username === req.params.username)
-		canEdit = true;
+		if (req.user.username === req.params.username)
+			canEdit = true;
+	}
 	models.User.findOne({
 		where: {
 			username: req.params.username
@@ -196,17 +244,17 @@ router.get('/user/:username', auth.validate, function(req, res) {
 				}, {
 					model: models.Genre,
 					required: false
-				}]
-			}],
-			order: [
-				['createdAt', 'DESC']
-			]
-		}]
+				}],
+			}]
+		}],
+		order: [
+			[models.Post, 'createdAt', 'DESC']
+		]
 	}).then(function(userData) {
 		var userObj = {
 			user: userData,
 			extra: {
-				username: req.username,
+				username: req.user ? req.user.username : null,
 				loggedIn: loggedIn,
 				canEdit: canEdit,
 			}
@@ -219,8 +267,8 @@ router.get('/user/:username', auth.validate, function(req, res) {
 });
 
 // route for the user edit page
-router.get('/user/:username/edit', auth.validate, function(req, res) {
-	if (req.username && req.username === req.params.username) {
+router.get('/user/:username/edit', passportAuth.ensureAuthenticated, function(req, res) {
+	if (req.user.username && req.user.username === req.params.username) {
 		models.User.findOne({
 			where: {
 				username: req.params.username
@@ -230,7 +278,7 @@ router.get('/user/:username/edit', auth.validate, function(req, res) {
 				var userObj = {
 					user: user.dataValues,
 					extra: {
-						loggedIn: req.username ? true : false
+						loggedIn: req.user.username ? true : false
 					}
 				};
 				res.render('user', userObj);
@@ -244,7 +292,7 @@ router.get('/user/:username/edit', auth.validate, function(req, res) {
 });
 
 // route for the post page
-router.get('/user/:username/post', auth.validate, function(req, res) {
+router.get('/user/:username/post', passportAuth.ensureAuthenticated, function(req, res) {
 	models.User.findOne({
 		where: {
 			username: req.params.username
@@ -296,7 +344,7 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 				loggedIn: true
 			}
 		};
-		if(user.username === req.username)
+		if(user.username === req.user.username)
 			//res.json(userObj);
 			res.render('post', userObj);
 		else
@@ -307,9 +355,9 @@ router.get('/user/:username/post', auth.validate, function(req, res) {
 });
 
 // gets all data for the specified album
-router.get('/album/:id', auth.validate, function(req, res) {
+router.get('/album/:id', passportAuth.ensureAuthenticated, function(req, res) {
 	var loggedIn = false;
-	if (req.username)
+	if (req.user.username)
 		loggedIn = true;
 	models.Album.findOne({
 		where: {
@@ -354,21 +402,23 @@ router.get('/album/:id', auth.validate, function(req, res) {
 			through: models.UserAlbum,
 			required: false,
 			where: {
-				id: req.userId
+				id: req.user.id
 			}
-		}]
+		}],
+		order: [
+			[models.Post, 'createdAt', 'DESC']
+		]
 	}).then(function(albumData) {
-		console.log(albumData);
 		if (albumData) {
 			var owned = false;
-			if (albumData.Users) {
+			if (albumData.Users.length) {
 				owned = true;
 			}
 			var albumObj = {
 				album: albumData,
 				extra: {
-					userId: req.userId,
-					username: req.username,
+					userId: req.user.id,
+					username: req.user.username,
 					title: true,
 					loggedIn: loggedIn,
 					inDb: true,
@@ -386,8 +436,8 @@ router.get('/album/:id', auth.validate, function(req, res) {
 					var albumObj = {
 						album: releaseData,
 						extra: {
-							userId: req.userId,
-							username: req.username,
+							userId: req.user.id,
+							username: req.user.username,
 							title: true,
 							loggedIn: loggedIn,
 							inDb: false
@@ -403,11 +453,11 @@ router.get('/album/:id', auth.validate, function(req, res) {
 	});
 });
 
-router.get('/albums/search', auth.validate, function(req, res) {
+router.get('/albums/search', passportAuth.ensureAuthenticated, function(req, res) {
 	var loggedIn = false;
-	if (req.username)
+	if (req.user)
 		loggedIn = true;
-
+	
 	models.Album.findAll({
 		include: [{
 			model: models.Artist,
@@ -421,20 +471,22 @@ router.get('/albums/search', auth.validate, function(req, res) {
 		}, {
 			model: models.Style,
 			required: true
+		}, { 
+			model: models.Post,
+			required: true
 		}],
 		limit: 100,
 		subQuery: false,
 		order: [
-			['createdAt', 'DESC']
+			[ models.Post,'createdAt', 'DESC' ]
 		]
 	}).then(function(albums) {
 		var albumsObj = {
 			albums: albums,
 			extra: {
-				userId: req.userId,
-				username: req.username,
 				loggedIn: loggedIn,
-				album: true
+				username: req.user.username,
+				album: false
 			}
 		};
 		//res.json(albumsObj);
@@ -445,31 +497,10 @@ router.get('/albums/search', auth.validate, function(req, res) {
 });
 
 // searches for all albums that match the search parameters
-router.post('/albums/search', auth.validate, function(req, res) {
+router.post('/albums/search', passportAuth.ensureAuthenticated, function(req, res) {
 	var loggedIn = false;
-	if (req.username)
+	if (req.user)
 		loggedIn = true;
-
-	// var whereObj;
-	// if (req.body.type === 'title') {
-	// 	whereObj = {
-	// 		$or: [
-	// 			{ title : { $eq: req.body.query } },
-	// 			{ title : { like: req.body.query + ' %' } },
-	// 			{ title: { like: '% ' + req.body.query } },
-	// 			{ title: { like: '% ' + req.body.query + ' %' } }
-	// 		]
-	// 	};
-	// } else if (req.body.type === 'artist') {
-	// 	whereObj = {
-	// 		$or: [
-	// 			{ '$Artist.artist_name$' : { $eq: req.body.query } },
-	// 			{ '$Artist.artist_name$' : { like: req.body.query + ' %' } },
-	// 			{ '$Artist.artist_name$': { like: '% ' + req.body.query } },
-	// 			{ '$Artist.artist_name$': { like: '% ' + req.body.query + ' %' } }
-	// 		]
-	// 	};
-	// }
 
 	var searchParams = {
 		type: 'master'
@@ -501,8 +532,8 @@ router.post('/albums/search', auth.validate, function(req, res) {
 		var resultObj = {
 			albums: filtered,
 			extra: {
-				userId: req.userId,
-				username: req.username,
+				userId: req.user.id,
+				username: req.user.username,
 				title: true,
 				loggedIn: loggedIn,
 				searched: true,
@@ -512,53 +543,6 @@ router.post('/albums/search', auth.validate, function(req, res) {
 		res.render('search', resultObj);
 		//res.json(resultObj);
 	});
-		
-	
-	// models.Album.findAll({
-	// 	where: whereObj,
-	// 	include: [{
-	// 		model: models.Artist,
-	// 		required: true
-	// 	}, {
-	// 		model: models.Genre,
-	// 		required: true
-	// 	}, {
-	// 		model: models.Label,
-	// 		required: true	
-	// 	}, {
-	// 		model: models.User,
-	// 		required: false,
-	// 		where: {
-	// 			id: req.userId
-	// 		}
-	// 	}, {
-	// 		model: models.Post,
-	// 		required: false,
-	// 		include: [{
-	// 			model: models.User,
-	// 			required: true
-	// 		}]
-	// 	}],
-	// 	limit: 100,
-	// 	subQuery: false,
-	// 	order: [
-	// 		['createdAt', 'DESC']
-	// 	]
-	// }).then(function(albumData) {
-	// 	var albumsObj = {
-	// 		albums: albumData,
-	// 		extra: {
-	// 			userId: req.userId,
-	// 			username: req.username,
-	// 			loggedIn: loggedIn,
-	// 			title: req.body.type === 'title' ? true : false,
-	// 			searched: true
-	// 		}
-	// 	};
-	// 	res.render('search', albumsObj);
-	// }).catch(function(err) {
-	// 	res.json(err);
-	// });
 });
 
 module.exports = router;
