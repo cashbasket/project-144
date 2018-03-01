@@ -473,6 +473,9 @@ router.get('/albums/search', passportAuth.ensureAuthenticated, function(req, res
 			required: true
 		}, { 
 			model: models.Post,
+			where: {
+				isPublic: true
+			},
 			required: true
 		}],
 		limit: 100,
