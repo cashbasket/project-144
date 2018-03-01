@@ -182,7 +182,7 @@ $(function() {
 					['link', 'blockquote']
 				]
 			},
-			placeholder: 'e.g. Megadeth\'s "Rust in Peace" is the best album ever recorded, period.',
+			placeholder: 'e.g. This particular album is the best or worst album ever recorded, period. Or not.',
 			theme: 'snow'
 		});
 
@@ -206,7 +206,6 @@ $(function() {
 
 	$('#postForm').on('submit', function(event) {
 		event.preventDefault();
-
 		var userId = $('#userId').val();
 		var postId = $('#postId').val();
 		var albumId = $('#album').val();
@@ -225,6 +224,7 @@ $(function() {
 						isPublic: status
 					}
 				}).then(function(data) {
+					console.log(data);
 					$('#postForm').hide();
 					$('#result').removeClass('d-none');
 					$('#resultMsg').removeClass('d-none').text('Your post was created successfully!');

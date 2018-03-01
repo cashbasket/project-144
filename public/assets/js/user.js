@@ -86,9 +86,7 @@ $(document).ready(function() {
 						$('#password').addClass('is-invalid');
 					}
 				} else {
-					$('#updateSuccess').removeClass('d-none').fadeOut(3000, function() {
-						$('#updateSuccess').addClass('d-none');
-					});
+					$('#updateSuccess').removeClass('d-none');
 					$('#password, #newPassword, #confirmPassword').val('');
 					window.scrollTo(0, 0);
 				}
