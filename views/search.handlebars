@@ -1,31 +1,28 @@
 <h2>Search Albums</h2>
-
-<p>We currently have over 21,000 albums in our database.</p>
-
+<p>Powered by <a href="https://www.discogs.com" target="_blank">Discogs.com</a>. Thanks for the data, guys!</p>
+<br>
 <form method="post">
 	<div id="searchForm" class="form-row">
 		<div class="col-md-3">
 			<h6>Search by:</h6>
 			<select name="type" id="type" class="form-control">
-				<option value="album" {{#if extra.album}}selected{{/if}}>Album Title</option>
 				<option value="artist" {{#unless extra.album}}selected{{/unless}}>Artist Name</option>
+				<option value="album" {{#if extra.album}}selected{{/if}}>Album Title</option>
 			</select>
 		</div>
 		<div class="col-md-7">
-			<h6>Enter an <span id="searchTypeText">album title</span>:</h6>
+			<h6>Enter an <span id="searchTypeText">artist name</span>:</h6>
 			<input required name="query" id="query" type="text" class="form-control" placeholder="">
 		</div>
 		<div class="col-md-2">
-			<br>
-			<button type="submit" class="btn btn-primary">Search</button>
+			<br><button type="submit" class="btn btn-primary">Search</button>
 		</div>
 	</div>
 </form>
 <br><br>
 
-
 {{#if albums}}
-<h4>{{#if extra.searched}}Search Results{{else}}Recently Added to Project 144{{/if}}</h4>
+<h4>{{#if extra.searched}}Search Results{{else}}Recently Written About{{/if}}</h4>
 <br>
 <div id="results">
 	{{#if extra.searched}}

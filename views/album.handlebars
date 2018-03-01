@@ -5,16 +5,17 @@
 		</div>
 		<div class="col-md-10">
 			<h2 id="title" class="profile-title">{{album.title}}</h2>
-			<h5>by <span id="artists">{{#each album.Artists}}{{this.artist_name}}{{#unless @last}}, {{/unless}}{{/each}}</span><br><br>
-			Label: <span id="labels">{{#each album.Labels}}{{this.label_name}}{{#unless @last}}, {{/unless}}{{/each}}</span><br>
+			<h5>by {{#each album.Artists}}<span class="artist">{{this.artist_name}}</span>{{#unless @last}}, {{/unless}}{{/each}}</span><br><br>
+			Label: {{#each album.Labels}}<span class="label">{{this.label_name}}</span>{{#unless @last}}, {{/unless}}{{/each}}<br>
 			Released: <span id="year">{{album.release_year}}</span><br>
-			Genre: <span id="genres">{{#each album.Genres}}{{this.genre_name}}{{#unless @last}}, {{/unless}}{{/each}}</span><br>
-			Style: <span id="styles">{{#each album.Styles}}{{this.style_name}}{{#unless @last}}, {{/unless}}{{/each}}</span></h5>
+			Genre: {{#each album.Genres}}<span class="genre">{{this.genre_name}}</span>{{#unless @last}}, {{/unless}}{{/each}}<br>
+			Style: {{#each album.Styles}}<span class="style">{{this.style_name}}</span>{{#unless @last}}, {{/unless}}{{/each}}
+			</h5>
 			<br>
 			{{#if extra.owned}}
 				<a href="/user/{{extra.username}}/post/?albumId={{album.id}}" class="btn btn-primary"><i class="fas fa-pencil-alt"></i> Write a Post</a>
 			{{else}}
-				<a id="addButton" data-id="{{extra.userId}}" data-username="{{extra.username}}" data-master-id="{{album.master_id}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add to Your Collection</a>
+				<a id="addButton" data-id="{{extra.userId}}" data-username="{{extra.username}}" data-master-id="{{album.id}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add to Your Collection</a>
 			{{/if}}
 		</div>
 	</div>
@@ -53,7 +54,7 @@
 		</div>
 	</div>
 	{{else}}
-		<h4>No one has written anything public about this album yet.</h4>
+		<h4>No one has written anything public about this album yet. You totally should.</h4>
 	{{/if}}
 {{else}}
 <div class="row">
@@ -62,15 +63,16 @@
 	</div>
 	<div class="col-md-10">
 		<h2 id="title" class="profile-title">{{album.title}}</h2>
-		<h5>by <span id="artists">{{#each album.artists}}{{this.name}}{{#unless @last}}, {{/unless}}{{/each}}</span><br><br>
-		Label: <span id="labels">{{#each album.labels}}{{this.name}}{{#unless @last}}, {{/unless}}{{/each}}</span><br>
-		Released: <span id="year">{{album.year}}</span><br>
-		Genre: <span id="genres">{{#each album.genres}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span><br>
-		Style: <span id="styles">{{#each album.styles}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}</span></h5>
+		<h5>by {{#each album.artists}}<span class="artist">{{this.name}}</span>{{#unless @last}}, {{/unless}}{{/each}}</span><br><br>
+			Label: {{#each album.labels}}<span class="label">{{this.name}}</span>{{#unless @last}}, {{/unless}}{{/each}}<br>
+			Released: <span id="year">{{album.year}}</span><br>
+			Genre: {{#each album.genres}}<span class="genre">{{this}}</span>{{#unless @last}}, {{/unless}}{{/each}}<br>
+			Style: {{#each album.styles}}<span class="style">{{this}}</span>{{#unless @last}}, {{/unless}}{{/each}}
+		</h5>
 		<br>
-		<a id="addButton" data-id="{{extra.userId}}" data-master-id="{{album.master_id}}" data-album-art="{{album.thumb}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add to Your Collection</a>
+		<a id="addButton" data-id="{{extra.userId}}" data-username="{{extra.username}}" data-master-id="{{album.master_id}}" data-album-art="{{album.thumb}}" class="btn btn-primary"><i class="fa fa-plus"></i> Add to Your Collection</a>
 	</div>
 </div>
 <br>
-<h4>No one has written anything public about this album yet.</h4>
+<h4>No one has this album in their collection yet. Be the first!</h4>
 {{/if}}
