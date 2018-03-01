@@ -1,13 +1,22 @@
+function addSpansToArray(spanClass) {
+	var array = [];
+	$('.' + spanClass).each(function() {
+		array.push($(this).text());
+	});
+	return array;
+}
+
 $(document).ready(function() {
 	$('#addButton').on('click', function(event) {
 		var userId = $(this).data('id');
 		var username = $(this).data('username');
 		var albumId = $(this).data('master-id');
 		var title = $('#title').text();
-		var artists = $('#artists').text().split(', ');
-		var genres = $('#genres').text().split(', ');
-		var labels = $('#labels').text().split(', ');
-		var styles = $('#styles').text().split(', ');
+		
+		var artists = addSpansToArray('artist'); // adds all artist names to the artists array
+		var genres = addSpansToArray('genre'); // etc.
+		var labels = addSpansToArray('label');
+		var styles = addSpansToArray('style');
 		var year = $('#year').text();
 		var album_art = $(this).data('album-art');
 
@@ -25,9 +34,7 @@ $(document).ready(function() {
 
 		$.ajax('/api/album/' + userId + '/' + albumId, {
 			type: 'POST',
-			data: JSON.stringify(albumData),
-			contentType: 'application/json; charset=utf-8',
-			dataType: 'json',
+			data: albumData
 		}).then(function(data) {
 			$('#addButton')
 				.fadeOut(200, function() {
