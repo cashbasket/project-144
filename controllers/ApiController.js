@@ -50,16 +50,12 @@ router.put('/user/:username/edit', passportAuth.ensureAuthenticated, function(re
 // adds an album to the user's collection (and the database, if needed!)
 router.post('/album/:userId/:albumId', passportAuth.ensureAuthenticated, function(req, res) {
 	var albumData = req.body;
-	var albumArtists = albumData['artists[]'];
-	var albumLabels = albumData['labels[]'];
-	var albumGenres = albumData['genres[]'];
-	var albumStyles = albumData['styles[]'];
 
 	// if we didn't get arrays for any of these, convert them to arrays
-	var albumArtistsArray = helpers.convertToArray(albumArtists);
-	var albumLabelsArray = helpers.convertToArray(albumLabels);
-	var albumGenresArray = helpers.convertToArray(albumGenres);
-	var albumStylesArray = helpers.convertToArray(albumStyles);
+	var albumArtistsArray = helpers.convertToArray(albumData['artists[]']);
+	var albumLabelsArray = helpers.convertToArray(albumData['labels[]']);
+	var albumGenresArray = helpers.convertToArray(albumData['genres[]']);
+	var albumStylesArray = helpers.convertToArray(albumData['styles[]']);
 
 	models.User.findOne({
 		where: {
@@ -108,160 +104,158 @@ router.post('/album/:userId/:albumId', passportAuth.ensureAuthenticated, functio
 					});
 					labelPromises.push(labelPromise);
 				}
-				return Promise.all(labelPromises).then(function(labels) {
-					for (var i = 0; i < labels.length; i++) {
-						labelIds.push(labels[i][0].id);
-					}
-					var stylePromises = [];
-					var styles = albumStylesArray;
-					for (var i = 0; i < styles.length; i++) {
-						var stylePromise = models.Style.findOrCreate({
-							where: {
-								style_name: styles[i]
-							},
-							defaults: {
-								style_name: styles[i]
-							},
-							transaction: t
-						});
-						stylePromises.push(stylePromise);
-					}
-					return Promise.all(stylePromises).then(function(styles) {
-						for (var i = 0; i < styles.length; i++) {
-							styleIds.push(styles[i][0].id);
-						}
-						var genrePromises = [];
-						var genres = albumGenresArray;
-						for (var i = 0; i < genres.length; i++) {
-							var genrePromise = models.Genre.findOrCreate({
-								where: {
-									genre_name: genres[i]
-								},
-								defaults: {
-									genre_name: genres[i]
-								},
-								transaction: t
-							});
-							genrePromises.push(genrePromise);
-						}
-						return Promise.all(genrePromises).then(function(genres) {
-							for (var i = 0; i < genres.length; i++) {
-								genreIds.push(genres[i][0].id);
-							}
-							return models.Album.findOrCreate({
-								where: {
-									id: req.params.albumId
-								},
-								defaults: {
-									id: req.params.albumId,
-									title: req.body.title,
-									album_art: req.body.album_art,
-									release_year: req.body.year,
-									added_by: req.params.userId
-								},
-								transaction: t
-							}).then(function(album) {
-								albumId = album[0].id;
-								return models.UserAlbum.findOrCreate({
-									where: {
-										UserId: req.params.userId,
-										AlbumId: albumId
-									},
-									defaults: {
-										UserId: req.params.userId,
-										AlbumId: albumId
-									},
-									transaction: t
-								});
-							}).then(function(result) {
-								var albumGenrePromises = [];
-								for (var i = 0; i < genreIds.length; i++) {
-									var albumGenrePromise = models.AlbumGenre.findOrCreate({
-										where: {
-											AlbumId: albumId,
-											GenreId: genreIds[i]
-										},
-										defaults: {
-											AlbumId: albumId,
-											GenreId: genreIds[i]
-										},
-										transaction: t
-									});
-									albumGenrePromises.push(albumGenrePromise);
-								}
-								return Promise.all(albumGenrePromises).then(function(albumGenres) {
-									var albumStylePromises = [];
-									for (var i = 0; i < styleIds.length; i++) {
-										var albumStylePromise = models.AlbumStyle.findOrCreate({
-											where: {
-												AlbumId: albumId,
-												StyleId: styleIds[i]
-											},
-											defaults: {
-												AlbumId: albumId,
-												StyleId: styleIds[i]
-											},
-											transaction: t
-										});
-										albumStylePromises.push(albumStylePromise);
-									}
-									return Promise.all(albumStylePromises).then(function(albumStyles) {
-										var albumArtistPromises = [];
-										for (var i = 0; i < artistIds.length; i++) {
-											var albumArtistPromise = models.AlbumArtist.findOrCreate({
-												where: {
-													AlbumId: albumId,
-													ArtistId: artistIds[i]
-												},
-												defaults: {
-													AlbumId: albumId,
-													ArtistId: artistIds[i]
-												},
-												transaction: t
-											});
-											albumArtistPromises.push(albumArtistPromise);
-										}
-										return Promise.all(albumArtistPromises).then(function(albumArtists) {
-											var albumLabelPromises = [];
-											for (var i = 0; i < labelIds.length; i++) {
-												var albumLabelPromise = models.AlbumLabel.findOrCreate({
-													where: {
-														AlbumId: albumId,
-														LabelId: labelIds[i]
-													},
-													defaults: {
-														AlbumId: albumId,
-														LabelId: labelIds[i]
-													},
-													transaction: t
-												});
-												albumLabelPromises.push(albumLabelPromise);
-											}
-											return Promise.all(albumLabelPromises);
-										});
-									});
-								});
-							});
-						});
+				return Promise.all(labelPromises);
+			}).then(function(labels) {
+				for (var i = 0; i < labels.length; i++) {
+					labelIds.push(labels[i][0].id);
+				}
+				var stylePromises = [];
+				var styles = albumStylesArray;
+				for (var i = 0; i < styles.length; i++) {
+					var stylePromise = models.Style.findOrCreate({
+						where: {
+							style_name: styles[i]
+						},
+						defaults: {
+							style_name: styles[i]
+						},
+						transaction: t
 					});
+					stylePromises.push(stylePromise);
+				}
+				return Promise.all(stylePromises);
+			}).then(function(styles) {
+				for (var i = 0; i < styles.length; i++) {
+					styleIds.push(styles[i][0].id);
+				}
+				var genrePromises = [];
+				var genres = albumGenresArray;
+				for (var i = 0; i < genres.length; i++) {
+					var genrePromise = models.Genre.findOrCreate({
+						where: {
+							genre_name: genres[i]
+						},
+						defaults: {
+							genre_name: genres[i]
+						},
+						transaction: t
+					});
+					genrePromises.push(genrePromise);
+				}
+				return Promise.all(genrePromises);
+			}).then(function(genres) {
+				for (var i = 0; i < genres.length; i++) {
+					genreIds.push(genres[i][0].id);
+				}
+				return models.Album.findOrCreate({
+					where: {
+						id: req.params.albumId
+					},
+					defaults: {
+						id: req.params.albumId,
+						title: req.body.title,
+						album_art: req.body.album_art,
+						release_year: req.body.year,
+						added_by: req.params.userId
+					},
+					transaction: t
 				});
-			});		
-		}).then(function (result) {
-			var resultObj = {
-				success: true,
-				status: 200
-			};
-			res.end(JSON.stringify(resultObj));
-		}).catch(function (err) {
-			res.json(err);
+			}).then(function(album) {
+				albumId = album[0].id;
+				return models.UserAlbum.findOrCreate({
+					where: {
+						UserId: req.params.userId,
+						AlbumId: albumId
+					},
+					defaults: {
+						UserId: req.params.userId,
+						AlbumId: albumId
+					},
+					transaction: t
+				});
+			}).then(function(result) {
+				var albumGenrePromises = [];
+				for (var i = 0; i < genreIds.length; i++) {
+					var albumGenrePromise = models.AlbumGenre.findOrCreate({
+						where: {
+							AlbumId: albumId,
+							GenreId: genreIds[i]
+						},
+						defaults: {
+							AlbumId: albumId,
+							GenreId: genreIds[i]
+						},
+						transaction: t
+					});
+					albumGenrePromises.push(albumGenrePromise);
+				}
+				return Promise.all(albumGenrePromises);
+			}).then(function(albumGenres) {
+				var albumStylePromises = [];
+				for (var i = 0; i < styleIds.length; i++) {
+					var albumStylePromise = models.AlbumStyle.findOrCreate({
+						where: {
+							AlbumId: albumId,
+							StyleId: styleIds[i]
+						},
+						defaults: {
+							AlbumId: albumId,
+							StyleId: styleIds[i]
+						},
+						transaction: t
+					});
+					albumStylePromises.push(albumStylePromise);
+				}
+				return Promise.all(albumStylePromises);
+			}).then(function(albumStyles) {
+				var albumArtistPromises = [];
+				for (var i = 0; i < artistIds.length; i++) {
+					var albumArtistPromise = models.AlbumArtist.findOrCreate({
+						where: {
+							AlbumId: albumId,
+							ArtistId: artistIds[i]
+						},
+						defaults: {
+							AlbumId: albumId,
+							ArtistId: artistIds[i]
+						},
+						transaction: t
+					});
+					albumArtistPromises.push(albumArtistPromise);
+				}
+				return Promise.all(albumArtistPromises);
+			}).then(function(albumArtists) {
+				var albumLabelPromises = [];
+				for (var i = 0; i < labelIds.length; i++) {
+					var albumLabelPromise = models.AlbumLabel.findOrCreate({
+						where: {
+							AlbumId: albumId,
+							LabelId: labelIds[i]
+						},
+						defaults: {
+							AlbumId: albumId,
+							LabelId: labelIds[i]
+						},
+						transaction: t
+					});
+					albumLabelPromises.push(albumLabelPromise);
+				}
+				return Promise.all(albumLabelPromises);	
+			}).then(function (result) {
+				var resultObj = {
+					success: true,
+					status: 200
+				};
+				res.end(JSON.stringify(resultObj));
+			}).catch(function (err) {
+				res.json(err);
+			});
 		});
 	});
-	
 });
 
 // searches for albums in the current user's collection
 router.post('/user/:username/search', passportAuth.ensureAuthenticated, function(req, res) {	
-	var whereObj;
 	var canEdit = false;
 	var loggedIn = false;
 	if (req.user.username === req.params.username)
