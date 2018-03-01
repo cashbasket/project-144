@@ -1,19 +1,20 @@
 <h1 class="text-center no-nav">Project 144</h1>
 <div class="row">
 	<div class="col-md-6 offset-md-3">
-		<form id="loginForm">
+		<form name="loginForm" id="loginForm" method="post" action="/login">
 			<fieldset>
 				<legend class="text-center">Log In and Write Something</legend>
 				<br>
+				{{#if message}}
+					<div class="alert alert-danger">{{message}}</div>
+				{{/if}}
 				<div id="fgLoginUserEmail" class="form-group">
-					<label for="loginUserEmail">Email Address or Username</label>
-					<input required type="text" class="form-control" id="loginUser" aria-describedby="username" placeholder="Enter your email or username">
-					<div id="badLoginUser" class="invalid-feedback">Invalid username.</div>
+					<label for="loginUserEmail">Email Address</label>
+					<input required type="text" class="form-control" name="email" id="email" aria-describedby="username" placeholder="Enter your email address">
 				</div>
 				<div id="fgLoginPassword" class="form-group">
 					<label class="form-control-label" for="LoginPassword">Password</label>
-					<input required type="password" class="form-control" id="loginPassword" placeholder="Enter your password">
-					<div id="badLoginPassword" class="invalid-feedback">Invalid password.</div>
+					<input required type="password" class="form-control" name="password" id="password" placeholder="Enter your password">
 				</div>
 				<button type="submit" class="btn btn-primary">Log In</button>
 			</fieldset>

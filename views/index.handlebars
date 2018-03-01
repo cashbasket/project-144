@@ -5,23 +5,26 @@
 			<div class="intro text-center">
 				<p>Project 144 is a "semi-social" network built specifically for people who enjoy collecting and writing about music.</p>
 			</div>
-			<form id="signupForm">
+			<form id="signupForm" name="signupForm" method="post">
 				<fieldset>
 					<h3 class="text-center">Sign up.  It's free!</h3>
+					{{#if message}}
+						<div class="alert alert-danger">{{message}}</div>
+					{{/if}}
 					<div id="fgSignupEmail" class="form-group">
 						<label for="signupEmail">Email</label>
-						<input required type="email" class="form-control" id="signupEmail" aria-describedby="emailHelp" placeholder="Enter your email address">
+						<input required type="email" name="email" class="form-control" id="signupEmail" aria-describedby="emailHelp" placeholder="Enter your email address">
 						<div id="badSignupEmail" class="invalid-feedback">That email address is already being used.</div>
 					</div>
 					<div id="fgSignupUsername" class="form-group">
 						<label for="signupUsername">Username</label>
-						<input required type="text" class="form-control" id="signupUsername" aria-describedby="username" placeholder="Enter your desired username">
+						<input required type="text" name="username" class="form-control" id="signupUsername" aria-describedby="username" placeholder="Enter your desired username">
 						<div id="badSignupUsername" class="invalid-feedback"></div>
 					</div>
 					<div id="fgSignupPassword" class="form-group">
 						<label class="form-control-label" for="signupPassword">Password</label>
-						<input required type="password" class="form-control" id="signupPassword" placeholder="Create a password">
-						<div id="badSignupPassword" class="invalid-feedback">Your password must be 8-16 characters in length.</div>
+						<input required type="password" name="password" class="form-control" id="signupPassword" placeholder="Password must be 8-16 characters in length">
+						<div id="badSignupPassword" class="invalid-feedback">Passwords must be 8-16 characters in length.</div>
 					</div>
 					<div class="text-center">
 						<button type="submit" class="btn btn-primary">Get started</button><br><br>
