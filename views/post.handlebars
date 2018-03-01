@@ -35,7 +35,7 @@
 						{{/each}}
 					</div>
 					{{else}}
-					<label for="album">Select (or type) an album from your collection:</label>
+					<label for="album">Pick Your Subject (start typing an artist or album name):</label>
 					<div class="ui-widget">
 						<select id="album">
 							{{#each user.Albums}}
@@ -45,7 +45,7 @@
 					</div>
 					{{/if}}
 				</div>
-				<label for="postBody">{{#if user.Posts}}Make Your Updates:{{else}}Type something:{{/if}}</label>
+				<label for="postBody">{{#if user.Posts}}Make Your Updates:{{else}}Write Your Post:{{/if}}</label>
 				<h4 class="post-warning red d-none">No blank posts allowed!</h4>
 				<div id="postBody"></div>
 				<div class="message-remaining float-right"><strong id="charsLeft">1000</strong> characters remaining</div>
