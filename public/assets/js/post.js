@@ -206,15 +206,34 @@ $(function() {
 
 	$('#postForm').on('submit', function(event) {
 		event.preventDefault();
+		var errors = [];
 		var userId = $('#userId').val();
 		var postId = $('#postId').val();
 		var albumId = $('#album').val();
 		var status = $('#status').val() === 'public' ? true : false;
 		var postBody = $('.ql-editor').html();
+		$('.errors').addClass('d-none');
+
+		if (!albumId) {
+			errors.push('You must choose an album to write about.');
+		}
 
 		if($('.ql-editor').html() === '<p><br></p>') {
-		// Let user know a message is required.
-			$('.post-warning').removeClass('d-none');
+			errors.push('You must actually write something.');
+		} 
+		
+		if(errors) {
+			var errorIntro = $('<p>').text('The following errors occurred:');
+			var errorList = $('<ul>');
+			for (var i = 0; i < errors.length; i++) {
+				var errorItem = $('<li>').text(errors[i]);
+				errorList.append(errorItem);
+			}
+			$('.errors').append(errorIntro)
+				.append(errorList);
+			$('.errors').removeClass('d-none');
+			window.scrollTo(0, 0);
+			return false;
 		} else {
 			if(!$.urlParam('postId')) {
 				$.ajax('/api/post/' + userId + '/' + albumId, {

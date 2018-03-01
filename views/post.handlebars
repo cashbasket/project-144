@@ -15,6 +15,7 @@
 	<div class="row">
 		<div class="col-md-6 offset-md-3">
 			<h2>{{#if user.Posts}}Edit Your{{else}}Write a{{/if}} Post</h2>
+			<div class="errors alert alert-danger d-none"></div>
 			<fieldset>
 				<div id="albumGroup" class="form-group">
 					{{#if user.Posts}}
@@ -38,6 +39,7 @@
 					<label for="album">Pick Your Subject (start typing an artist or album name):</label>
 					<div class="ui-widget">
 						<select id="album">
+							<option></option>
 							{{#each user.Albums}}
 								<option value="{{id}}">{{#each this.Artists}}{{this.artist_name}}{{#unless @last}}, {{/unless}}{{/each}} &mdash; {{title}}</option>
 							{{/each}}
@@ -46,7 +48,6 @@
 					{{/if}}
 				</div>
 				<label for="postBody">{{#if user.Posts}}Make Your Updates:{{else}}Write Your Post:{{/if}}</label>
-				<h4 class="post-warning red d-none">No blank posts allowed!</h4>
 				<div id="postBody"></div>
 				<div class="message-remaining float-right"><strong id="charsLeft">1000</strong> characters remaining</div>
 				<br>
