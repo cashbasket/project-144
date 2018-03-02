@@ -31,19 +31,17 @@ passport.use('local-signup', new LocalStrategy({
 			return done(null, false, {message: 'That email is already in use'});
 		if(user && user.username === req.body.username)
 			return done(null, false, {message: 'That username is already taken'});
-		else {
-			models.User.create({
-				email: req.body.email,
-				username: req.body.username,
-				password: bcrypt.hashSync(password, bcrypt.genSaltSync(8), null),
-				gravatarUrl: gravatar.url(email, {s: '200', r: 'pg', d: '404'}, true)
-			}).then(function(newUser, created){
-				if(!newUser)
-					return done(null, false);
-				else
-					return done(null, newUser);
-			});
-		}
+		models.User.create({
+			email: req.body.email,
+			username: req.body.username,
+			password: bcrypt.hashSync(password, bcrypt.genSaltSync(8), null),
+			gravatarUrl: gravatar.url(email, {s: '200', r: 'pg', d: '404'}, true)
+		}).then(function(newUser, created){
+			if(!newUser)
+				return done(null, false);
+			else
+				return done(null, newUser);
+		});
 	}); 
 }));
 
