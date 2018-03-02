@@ -2,10 +2,11 @@ var express = require('express');
 var router = express.Router();
 var models = require('../models');
 var RateLimit = require('express-rate-limit');
-var nodemailer = require('nodemailer');
 var crypto = require('crypto');
 var passport = require('../config/passport');
 var passportAuth  = require('../lib/passportAuth');
+var helpers = require('../lib/helpers');
+var bcrypt = require('bcrypt-nodejs');
 var Discogs = require('disconnect').Client;
 var discogsDb = new Discogs({
 	consumerKey: process.env.DISCOGS_CONSUMER_KEY, 
@@ -116,24 +117,9 @@ router.post('/forgot', function(req, res, next) {
 				}
 			});
 		}).then(function(result) {
-			if(result[0] === 1) {
-				var smtpTransport = nodemailer.createTransport({
-					service: 'gmail',
-					auth: {
-						user: process.env.MAIL_ADDRESS,
-						pass: process.env.MAIL_PW
-					}
-				});
-				var mailOptions = {
-					to: req.body.email,
-					from: process.env.MAIL_ADDRESS,
-					subject: 'Project 144 Password Reset',
-					text: 'Greetings!\n\n You are receiving this email because you (or someone else) has requested a password reset for your Project 144 account.\n\n' + 'To complete the password reset process, please click on the link below, or paste it into your browser:\n\n' +
-				'https://' + req.headers.host + '/reset/' + token + '\n\n' +
-				'If you did not request this email, please ignore this email and your password will remain unchanged.\n'
-				};
-				return smtpTransport.sendMail(mailOptions);
-			}
+			if(result[0] === 1) 
+				// send password reset email
+				return helpers.sendMail('reset', req.body.email, req.headers.host, token);
 		}).then(function(result) {
 			res.json(result);
 		}).catch(function(err) {
@@ -171,7 +157,7 @@ router.put('/reset/:token', function(req, res) {
 		userEmail = user.dataValues.email;
 
 		return models.User.update({
-			password: bcrypt.hashSync(req.body.password, 8),
+			password: bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(8), null),
 			resetPasswordToken: null,
 			resetPasswordExpires: null
 		}, {
@@ -180,21 +166,8 @@ router.put('/reset/:token', function(req, res) {
 			}
 		});
 	}).then(function(result) {
-		var smtpTransport = nodemailer.createTransport({
-			service: 'gmail',
-			auth: {
-				user: process.env.MAIL_ADDRESS,
-				pass: process.env.MAIL_PW
-			}
-		});
-		var mailOptions = {
-			to: userEmail,
-			from: process.env.MAIL_ADDRESS,
-			subject: 'Your Project 144 password has been changed',
-			text: 'Hello,\n\n' +
-				'We\'re just letting you know that the password for your Project 144 account was successfully changed.\n'
-		};
-		return smtpTransport.sendMail(mailOptions);
+		// send confirmation email
+		return helpers.sendMail('confirm-reset', userEmail, null, null);
 	}).then(function(result) {
 		res.json(result);
 	}).catch(function(err) {
