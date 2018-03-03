@@ -1,0 +1,21 @@
+<div class="row">
+	<div class="col-md-7">
+		<div id="comment-{{this.id}}" class="card comment-card bg-light mb-3">
+			<div class="card-body">
+				<div class="row">
+					<div class="col-md-2">
+						{{#ifEquals this.User.gravatarUrl 'https://s.gravatar.com/avatar/c36cfd2d186891b0f2645d4b7a31169d?s=200&r=pg&d=404'}}
+							<img src="/assets/img/silhouette.jpg" class="img-fluid" />
+						{{else}}
+							<img src="{{this.User.gravatarUrl}}" class="img-fluid post-profile-image" />
+						{{/ifEquals}}
+					</div>
+					<div class="col-md-10">
+						<p class="card-text">{{{this.body}}}</p>
+						<small class="card-text"><em>Posted {{formatDate this.createdAt "M/DD/YYYY @ h:mma"}}</em></small>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
