@@ -218,6 +218,13 @@ router.get('/user/:username', function(req, res) {
 					model: models.Genre,
 					required: false
 				}],
+			}, {
+				model: models.Comment,
+				required: false,
+				include: [{
+					model: models.User,
+					required: true
+				}]
 			}]
 		}],
 		order: [
@@ -369,6 +376,13 @@ router.get('/album/:id', passportAuth.ensureAuthenticated, function(req, res) {
 			include: [{
 				model: models.User,
 				required: true
+			}, {
+				model: models.Comment,
+				required: false,
+				include: [{
+					model: models.User,
+					required: true
+				}]
 			}]
 		}, {
 			model: models.User,
