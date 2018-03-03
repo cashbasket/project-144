@@ -1,4 +1,49 @@
+function createCommentEditor(postId) {
+	var commentEditor = new Quill('#commentBody-' + postId, {
+		modules: {
+			toolbar: false
+		},
+		placeholder: 'e.g. I value your opinion greatly.',
+		theme: 'snow'
+	});
+
+	commentEditor.on('text-change', function() {
+		var maxChars = 500;
+		if (commentEditor.getLength() > maxChars) {
+			commentEditor.deleteText(maxChars, commentEditor.getLength());
+		}
+	});
+}
+
 $(document).ready(function() {
+
+	// display the comments section for the post
+	$('.view-comments').on('click', function() {
+		var id = $(this).data('id');
+		$('#comments-' + id).toggleClass('d-none');
+		createCommentEditor(id);
+	});
+
+	$('.comment-form').on('submit', function(event) {
+		event.preventDefault();
+		var postId = $(this).data('post-id');
+		var commentBody = $('#commentBody-' + postId + ' > .ql-editor').html();
+		$('#commentStatus-' + postId).addClass('d-none');
+		if(!commentBody.html() === '<p><br><p>')
+			$('#commentStatus-' + postId).removeClass('d-none').text('You need to enter a comment first.');
+		
+		$.ajax('/api/comment/' + postId, {
+			type: 'POST',
+			data: { 
+				body: commentBody
+			}
+		}).then(function(data) {
+			commentBody.html('<p><br><p>');
+			$('#commentStatus-' + postId).removeClass('d-none').text('Posted!');
+			// TODO: append new comment to bottom of comments list
+		});
+	});
+
 	$('#collectionQuery').on('keyup', function(event){
 		event.preventDefault();
 		$.ajax('/api/user/' + $('.profile-title').text() + '/search', {

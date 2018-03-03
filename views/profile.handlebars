@@ -51,37 +51,47 @@
 					</ul>
 					<div class="tab-content" id="profileTabs">
 						<div class="tab-pane fade {{#if user.Posts}}show active{{/if}}" id="tabPosts" role="tabpanel" aria-labelledby="profile-tab">
-							<div class="list-group"></div>
 							{{#if user.Posts}}
 								{{#each user.Posts}}
 									{{#if isPublic}}
-									<div id="post-{{id}}" class="card text-white bg-dark mb-3">
-										<div class="card-body">
-											<div class="row">
-												<div class="col-md-2">
-													{{#if ../extra.loggedIn}}
-														<a href="/album/{{Album.id}}"><img src="{{Album.album_art}}" class="img-fluid" /></a>
-													{{else}}
-														<img src="{{Album.album_art}}" class="img-fluid" />
-													{{/if}}
-												</div>
-												<div class="col-md-10">
-													<div class="d-flex w-100 justify-content-between">
-														<h5 class="white" style="margin:0">RE: "{{Album.title}}" by {{#each this.Album.Artists}}{{this.artist_name}}{{#unless @last}}, {{/unless}}{{/each}}</h5>
-														{{#if ../extra.canEdit}}
-															<a class="edit-post" href="/user/{{../user.username}}/post/?postId={{id}}"><i class="far fa-edit"></i></a>
+										<div id="post-{{id}}" data-id="{{id}}" class="card post-card text-white bg-dark mb-3">
+											<div class="card-body">
+												<div class="row">
+													<div class="col-md-2">
+														{{#if ../extra.loggedIn}}
+															<a href="/album/{{Album.id}}"><img src="{{Album.album_art}}" class="img-fluid" /></a>
+														{{else}}
+															<img src="{{Album.album_art}}" class="img-fluid" />
 														{{/if}}
 													</div>
-													<small><em>Posted {{formatDate createdAt "M/DD/YYYY @ h:mma"}}</em></small>
-													<br><br>
-													<p class="mb-1">{{{body}}}</p>
+													<div class="col-md-10">
+														<div class="d-flex w-100 justify-content-between">
+															<h5 class="white" style="margin:0">RE: "{{Album.title}}" by {{#each this.Album.Artists}}{{this.artist_name}}{{#unless @last}}, {{/unless}}{{/each}}</h5>
+															{{#if ../extra.canEdit}}
+																<a class="edit-post" href="/user/{{../user.username}}/post/?postId={{id}}"><i class="far fa-edit"></i></a>
+															{{/if}}
+														</div>
+														<small><em>Posted {{formatDate createdAt "M/DD/YYYY @ h:mma"}}</em></small>
+														<br><br>
+														<p class="mb-1">{{{body}}}</p>
+													</div>
+												</div>
+												<div class="row">
+													<div class="col-md-10 offset-md-2">
+														<a id="viewComments-{{id}}" data-id="{{id}}" class="view-comments"><i class="far fa-comment-alt"></i> <span class="view-comments-text">Comment</span></a>
+													</div>
 												</div>
 											</div>
 										</div>
-									</div>
+										<div id="comments-{{id}}" class="comments-wrapper d-none">
+											{{> commentForm this}}
+											{{#each this.Comments}}
+												{{> comment this}}
+											{{/each}}
+										</div>
 									{{else}}
 										{{#if ../extra.canEdit}}
-											<div id="post-{{id}}" class="card text-white bg-dark mb-3">
+											<div id="post-{{id}}" data-id="{{id}}" class="card post-card text-white bg-dark mb-3">
 												<div class="card-body">
 													<div class="row">
 														<div class="col-md-2">
@@ -100,9 +110,21 @@
 															</div>
 															<p><small><em>Posted {{formatDate createdAt "M/DD/YYYY @ h:mma"}}</em><br>(NOTE: This post was marked "private," so only you can see it)</small></p>
 															<p class="mb-1">{{{body}}}</p>
+															
+														</div>
+													</div>
+													<div class="row">
+														<div class="col-md-10 offset-md-2">
+															<a id="viewComments" data-id="{{id}}" class="view-comments"><i class="far fa-comment-alt"></i> <span class="view-comments-text">Comment</span></a>
 														</div>
 													</div>
 												</div>
+											</div>
+											<div id="comments-{{id}}" class="comments-wrapper d-none">
+												{{> commentForm this}}
+												{{#each this.Comments}}
+													{{> comment this}}
+												{{/each}}
 											</div>
 										{{/if}}
 									{{/if}}
