@@ -211,14 +211,14 @@ $(function() {
 		var postId = $('#postId').val();
 		var albumId = $('#album').val();
 		var status = $('#status').val() === 'public' ? true : false;
-		var postBody = $('.ql-editor').html();
+		var postBody = $('#postForm .ql-editor').html();
 		$('.errors').addClass('d-none');
 
 		if (!albumId) {
 			errors.push('You must choose an album to write about.');
 		}
 
-		if($('.ql-editor').html() === '<p><br></p>') {
+		if(postBody === '<p><br></p>') {
 			errors.push('You must actually write something.');
 		} 
 		
